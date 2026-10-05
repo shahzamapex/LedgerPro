@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LedgerPro — Accounting Practice CRM</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@0.462.0/dist/umd/lucide.js"></script>
+<style>
+:root{
+  --bg:#f4f7f8; --bg-elev:#ffffff; --card:#ffffff; --card-hover:#f1f6f7; --card-soft:#f8fafb;
+  --border:#e3eaec; --border-soft:#ecf1f2;
+  --text:#14212a; --text-dim:#55656f; --text-faint:#94a2ab;
+  --brand:#0f766e; --brand-soft:#e0f4f1; --blue:#2563eb; --blue-soft:#e8eefd;
+  --emerald:#16a34a; --emerald-soft:#e8f9ee; --rose:#e11d48; --rose-soft:#fdecef;
+  --amber:#d97706; --amber-soft:#fef3e2; --violet:#7c3aed; --violet-soft:#f1ecfd; --sky:#0284c7; --sky-soft:#e6f4fc; --orange:#ea580c; --orange-soft:#fff1e6;
+  --grad:linear-gradient(135deg,#0f766e 0%,#0369a1 100%);
+  --radius:14px; --shadow:0 10px 26px -14px rgba(20,40,50,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:radial-gradient(1000px 560px at 90% -10%,rgba(3,105,161,.06),transparent 60%),radial-gradient(900px 500px at -10% 0%,rgba(15,118,110,.07),transparent 55%),var(--bg);color:var(--text);font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Inter,Roboto,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden;}
+::-webkit-scrollbar{width:8px;height:8px;} ::-webkit-scrollbar-thumb{background:#d2dce0;border-radius:8px;}
+button{font-family:inherit;cursor:pointer;}
+.app{display:flex;height:100vh;width:100vw;}
+.sidebar{width:252px;flex-shrink:0;background:var(--bg-elev);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;}
+.brand{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid var(--border-soft);}
+.brand-mark{width:36px;height:36px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px -6px rgba(15,118,110,.5);flex-shrink:0;}
+.brand-mark svg{width:19px;height:19px;color:#fff;stroke-width:2.3;}
+.brand-text{min-width:0;} .brand-text .t1{font-weight:800;font-size:15.5px;} .brand-text .t2{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;}
+.nav{flex:1;overflow-y:auto;padding:10px 10px;}
+.nav-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-faint);padding:13px 10px 6px;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:8px 12px;border-radius:10px;color:var(--text-dim);font-size:13.2px;font-weight:600;margin-bottom:2px;transition:.15s;cursor:pointer;}
+.nav-item svg{width:17px;height:17px;}
+.nav-item:hover{background:var(--card-hover);color:var(--text);}
+.nav-item.active{background:var(--brand-soft);color:var(--brand);}
+.nav-badge{margin-left:auto;background:#e9eff1;color:var(--text-dim);font-size:10.5px;padding:1px 7px;border-radius:20px;font-weight:700;}
+.nav-badge.hot{background:var(--rose-soft);color:var(--rose);}
+.nav-item.active .nav-badge{background:#c8ebe6;color:var(--brand);}
+.side-foot{padding:14px;border-top:1px solid var(--border-soft);}
+.side-card{background:linear-gradient(160deg,rgba(15,118,110,.09),rgba(3,105,161,.06));border:1px solid var(--border);border-radius:12px;padding:12px;font-size:12px;}
+.side-card b{display:flex;align-items:center;gap:6px;font-size:12.5px;margin-bottom:3px;} .side-card b svg{width:14px;height:14px;color:var(--brand);}
+.side-card p{color:var(--text-dim);font-size:11.3px;line-height:1.5;margin-bottom:8px;}
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0;}
+.topbar{height:62px;flex-shrink:0;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.92);position:relative;z-index:50;}
+.page-title{font-size:17px;font-weight:800;} .page-sub{font-size:12px;color:var(--text-faint);margin-top:1px;}
+.search-box{flex:1;max-width:330px;margin-left:14px;position:relative;}
+.search-box svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-faint);}
+.search-box input{width:100%;background:var(--card-soft);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 32px;border-radius:9px;font-size:12.8px;outline:none;}
+.search-box input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);}
+.top-right{display:flex;align-items:center;gap:10px;margin-left:auto;position:relative;}
+.icon-btn{position:relative;width:36px;height:36px;border-radius:9px;background:var(--card-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-dim);cursor:pointer;}
+.icon-btn:hover{background:var(--card-hover);color:var(--text);} .icon-btn svg{width:16px;height:16px;}
+.dot-badge{position:absolute;top:-3px;right:-3px;background:var(--rose);color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:20px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+.user-chip{display:flex;align-items:center;gap:9px;padding:5px 10px 5px 5px;border-radius:10px;background:var(--card-soft);border:1px solid var(--border);}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.avatar.lg{width:44px;height:44px;font-size:15px;}
+.u-name{font-size:12.3px;font-weight:700;line-height:1.2;} .u-role{font-size:10.3px;color:var(--text-faint);}
+.notif-panel{position:absolute;top:46px;right:150px;width:350px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 44px -18px rgba(20,35,45,.35);display:none;overflow:hidden;max-height:420px;overflow-y:auto;}
+.notif-panel.show{display:block;}
+.notif-head{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);font-weight:800;font-size:13px;position:sticky;top:0;background:#fff;}
+.notif-head span{margin-left:auto;font-size:11px;color:var(--brand);font-weight:700;cursor:pointer;}
+.notif-item{padding:11px 14px;border-bottom:1px solid var(--border-soft);font-size:12px;line-height:1.45;} .notif-item.unread{background:var(--brand-soft);} .notif-item .nt{font-size:10.5px;color:var(--text-faint);margin-top:2px;}
+.content{flex:1;overflow-y:auto;padding:22px 26px 60px;}
+.section{display:none;} .section.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+.grid{display:grid;gap:16px;}
+.kpi-grid{grid-template-columns:repeat(6,1fr);margin-bottom:18px;}
+.kpi{padding:16px;position:relative;}
+.k-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;} .k-icon svg{width:16px;height:16px;}
+.k-val{font-size:21px;font-weight:800;} .k-label{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+.k-delta{position:absolute;top:16px;right:14px;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--emerald-soft);color:var(--emerald);}
+.k-delta.down{background:var(--rose-soft);color:var(--rose);}
+.row-2{grid-template-columns:1.5fr 1fr;} .row-3{grid-template-columns:1fr 1fr 1fr;} .row-2e{grid-template-columns:1fr 1fr;} .row-4{grid-template-columns:repeat(4,1fr);}
+.panel{padding:18px;}
+.panel-head{display:flex;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.panel-title{font-size:14.5px;font-weight:800;display:flex;align-items:center;gap:8px;} .panel-title svg{width:16px;height:16px;color:var(--brand);}
+.panel-actions{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.link-btn{font-size:12px;color:var(--brand);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.chart-wrap{position:relative;height:230px;margin-top:6px;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;font-size:12.6px;font-weight:700;border:1px solid var(--border);background:var(--card-soft);color:var(--text);transition:.15s;}
+.btn svg{width:14px;height:14px;} .btn:hover{background:var(--card-hover);}
+.btn-primary{background:var(--grad);color:#fff;border:none;} .btn-primary:hover{filter:brightness(1.07);background:var(--grad);}
+.btn-ghost{background:transparent;} .btn-sm{padding:6px 11px;font-size:11.8px;}
+.btn-danger{background:var(--rose-soft);border-color:#f7c9d3;color:var(--rose);}
+.btn-success{background:var(--emerald-soft);border-color:#bfe9cd;color:var(--emerald);}
+.btn[disabled]{opacity:.5;cursor:not-allowed;}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar .search-box{max-width:260px;margin-left:0;}
+select.filter{background:var(--card-soft);border:1px solid var(--border);color:var(--text-dim);padding:8px 30px 8px 12px;border-radius:9px;font-size:12.4px;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%2394a2ab'/></svg>");background-repeat:no-repeat;background-position:right 12px center;}
+.spacer{flex:1;}
+.seg{display:inline-flex;background:var(--card-soft);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap;}
+.seg button{border:none;background:transparent;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;color:var(--text-dim);}
+.seg button.on{background:#fff;color:var(--brand);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;background:var(--card);}
+thead th{text-align:left;font-size:10.6px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);padding:12px 16px;border-bottom:1px solid var(--border);background:var(--card-soft);white-space:nowrap;}
+tbody td{padding:11px 16px;border-bottom:1px solid var(--border-soft);font-size:12.8px;vertical-align:middle;white-space:nowrap;}
+tbody tr:last-child td{border-bottom:none;} tbody tr:hover{background:var(--card-hover);}
+.cell-name{font-weight:700;font-size:13px;} .cell-sub{font-size:11.2px;color:var(--text-faint);margin-top:1px;}
+.name-cell{display:flex;align-items:center;gap:10px;}
+.wrap-cell{white-space:normal;max-width:280px;color:var(--text-dim);font-size:12px;line-height:1.45;}
+.num{text-align:right;font-variant-numeric:tabular-nums;}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;} .pill svg{width:10px;height:10px;}
+.p-brand{background:var(--brand-soft);color:var(--brand);} .p-blue{background:var(--blue-soft);color:var(--blue);} .p-emerald{background:var(--emerald-soft);color:var(--emerald);} .p-rose{background:var(--rose-soft);color:var(--rose);}
+.p-sky{background:var(--sky-soft);color:var(--sky);} .p-amber{background:var(--amber-soft);color:var(--amber);} .p-violet{background:var(--violet-soft);color:var(--violet);}
+.p-orange{background:var(--orange-soft);color:var(--orange);} .p-gray{background:#e9eff1;color:var(--text-dim);}
+.actions{display:flex;gap:6px;}
+.act{width:28px;height:28px;border-radius:7px;background:var(--card-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-dim);cursor:pointer;}
+.act:hover{color:var(--brand);border-color:#aedcd6;} .act svg{width:13.5px;height:13.5px;}
+.insight{display:flex;gap:11px;padding:12px;border-radius:11px;background:var(--card-soft);border:1px solid var(--border-soft);margin-bottom:10px;} .insight:last-child{margin-bottom:0;}
+.i-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;} .i-ic svg{width:15px;height:15px;}
+.i-title{font-size:12.5px;font-weight:700;margin-bottom:2px;} .i-text{font-size:11.6px;color:var(--text-dim);line-height:1.5;} .i-time{font-size:10.2px;color:var(--text-faint);margin-top:4px;}
+.act-item{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--border-soft);} .act-item:last-child{border-bottom:none;padding-bottom:0;}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;} .a-text{font-size:12.4px;line-height:1.45;} .a-time{font-size:10.8px;color:var(--text-faint);margin-top:2px;}
+.mini-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;margin-bottom:8px;background:var(--card-soft);border:1px solid var(--border-soft);} .mini-row:last-child{margin-bottom:0;}
+.mini-row .m-main{flex:1;min-width:0;} .m-name{font-size:12.6px;font-weight:700;} .m-sub{font-size:11px;color:var(--text-faint);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sec-head h2{font-size:19px;font-weight:800;} .sec-head p{font-size:12.4px;color:var(--text-faint);margin:2px 0 16px;}
+.mkpi{padding:14px 16px;} .mkpi .v{font-size:20px;font-weight:800;} .mkpi .l{font-size:11.3px;color:var(--text-faint);margin-top:2px;}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+.stage{padding:16px;border-top:4px solid var(--sky);}
+.stage .s-n{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;} .stage .s-v{font-size:20px;font-weight:800;margin:6px 0 2px;} .stage .s-d{font-size:11.5px;color:var(--text-faint);}
+.chipline{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;}
+.chip{font-size:10.6px;font-weight:700;background:var(--card-soft);border:1px solid var(--border);border-radius:6px;padding:2px 7px;color:var(--text-dim);display:inline-flex;align-items:center;gap:4px;} .chip svg{width:10px;height:10px;}
+.chip.on{background:var(--brand-soft);border-color:#aedcd6;color:var(--brand);}
+.chip.doc{cursor:pointer;font-size:11px;padding:3px 9px;} .chip.doc:hover{border-color:var(--brand);}
+.chip.got{text-decoration:line-through;opacity:.55;}
+.dots{display:inline-flex;gap:4px;vertical-align:middle;} .dots i{width:8px;height:8px;border-radius:50%;background:#dbe5e8;display:block;} .dots i.on{background:var(--brand);} .dots i.hot{background:var(--rose);}
+.convo{display:grid;grid-template-columns:330px 1fr;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;height:calc(100vh - 290px);min-height:420px;box-shadow:var(--shadow);}
+.c-list{background:var(--card-soft);border-right:1px solid var(--border);overflow-y:auto;}
+.c-filter{padding:10px;border-bottom:1px solid var(--border);background:#fff;display:flex;gap:8px;position:sticky;top:0;z-index:2;}
+.c-item{display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border-soft);cursor:pointer;position:relative;} .c-item:hover,.c-item.active{background:#fff;}
+.c-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand);}
+.c-meta{flex:1;min-width:0;} .c-top{display:flex;justify-content:space-between;align-items:center;gap:6px;} .c-name{font-size:12.6px;font-weight:700;} .c-time{font-size:10px;color:var(--text-faint);white-space:nowrap;}
+.c-msg{font-size:11.4px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.c-tags{display:flex;gap:5px;margin-top:5px;align-items:center;}
+.unread{width:8px;height:8px;border-radius:50%;background:var(--brand);flex-shrink:0;margin-top:5px;}
+.thread{display:flex;flex-direction:column;height:100%;background:#fff;min-width:0;}
+.t-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-wrap:wrap;}
+.t-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;background:#f6f9fa;}
+.msg{max-width:74%;padding:9px 13px;border-radius:12px;font-size:12.6px;line-height:1.5;white-space:pre-wrap;}
+.msg.client{align-self:flex-start;background:#fff;border:1px solid var(--border);border-bottom-left-radius:3px;}
+.msg.ai{align-self:flex-end;background:#dcf4ef;border:1px solid #b6e3db;border-bottom-right-radius:3px;}
+.msg.team{align-self:flex-end;background:#e6ecfb;border:1px solid #c6d4f6;border-bottom-right-radius:3px;}
+.msg .m-meta{display:flex;gap:6px;align-items:center;font-size:9.8px;color:var(--text-faint);margin-top:5px;}
+.typing{align-self:flex-end;font-size:11px;color:var(--text-faint);padding:4px 10px;}
+.banner{margin:12px 18px 0;padding:10px 13px;border-radius:10px;font-size:12px;display:flex;gap:9px;align-items:center;line-height:1.45;} .banner svg{width:15px;height:15px;flex-shrink:0;}
+.b-rose{background:var(--rose-soft);border:1px solid #f7c9d3;color:#9f1239;} .b-sky{background:var(--sky-soft);border:1px solid #bfe0f3;color:#075985;} .b-emerald{background:var(--emerald-soft);border:1px solid #bfe9cd;color:#166534;}
+.composer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;background:#fff;flex-wrap:wrap;}
+.composer input{flex:1;min-width:160px;background:var(--card-soft);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:12.6px;outline:none;} .composer input:focus{border-color:var(--brand);}
+.samples{padding:0 18px 12px;display:flex;gap:6px;flex-wrap:wrap;background:#fff;}
+.sample{font-size:11.3px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:5px 10px;color:var(--text-dim);cursor:pointer;} .sample:hover{border-color:var(--brand);color:var(--brand);}
+.auto-grid{grid-template-columns:repeat(2,1fr);} .auto-card{padding:20px;}
+.ag-top{display:flex;align-items:flex-start;gap:13px;} .ag-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;} .ag-ic svg{width:20px;height:20px;}
+.ag-name{font-weight:800;font-size:14px;} .ag-type{font-size:11px;color:var(--text-faint);margin-top:2px;}
+.toggle{margin-left:auto;width:36px;height:20px;border-radius:20px;background:#dfe7ea;position:relative;transition:.2s;flex-shrink:0;border:1px solid var(--border);cursor:pointer;}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle.on{background:#bdf0cd;border-color:#9ee6b6;} .toggle.on::after{left:18px;background:var(--emerald);}
+.ag-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;} .ag-stat{background:var(--card-soft);border-radius:9px;padding:9px 10px;border:1px solid var(--border-soft);} .ag-stat .v{font-size:13.5px;font-weight:800;} .ag-stat .l{font-size:10px;color:var(--text-faint);margin-top:1px;}
+.ag-list{font-size:11.8px;color:var(--text-dim);line-height:1.65;padding-left:16px;margin-bottom:12px;}
+.field-row{display:flex;align-items:center;gap:10px;margin-top:13px;} .field-row label{width:160px;font-size:11.8px;color:var(--text-dim);font-weight:600;flex-shrink:0;}
+.field-row input,.field-row select{flex:1;min-width:0;background:var(--card-soft);border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:12.4px;color:var(--text);outline:none;font-family:inherit;}
+.field-row input:focus,.field-row select:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);}
+.eye{width:34px;height:34px;border-radius:8px;background:var(--card-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex-shrink:0;cursor:pointer;} .eye svg{width:14px;height:14px;}
+.s-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;} .s-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);} .s-dot.off{background:#d1dade;}
+.s-foot{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-soft);flex-wrap:wrap;}
+.task{display:flex;gap:14px;padding:16px;align-items:flex-start;margin-bottom:12px;} .task .t-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;} .task .t-ic svg{width:18px;height:18px;}
+.task .t-main{flex:1;min-width:0;} .task .t-title{font-weight:800;font-size:13.4px;} .task .t-detail{font-size:12px;color:var(--text-dim);margin-top:3px;line-height:1.5;} .task .t-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center;}
+.task .t-act{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.task.done{opacity:.6;}
+textarea.ta{width:100%;background:var(--card-soft);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:12.6px;color:var(--text);outline:none;font-family:inherit;line-height:1.55;resize:vertical;} textarea.ta:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);}
+.overlay{position:fixed;inset:0;background:rgba(18,32,40,.42);display:none;align-items:center;justify-content:center;z-index:100;} .overlay.show{display:flex;}
+.modal{background:#fff;border:1px solid var(--border);border-radius:16px;width:620px;max-width:94vw;max-height:88vh;overflow-y:auto;box-shadow:0 24px 60px -20px rgba(20,25,40,.35);}
+.m-head{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2;} .m-head h3{font-size:15.5px;font-weight:800;}
+.m-close{margin-left:auto;width:30px;height:30px;border-radius:8px;background:var(--card-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-dim);cursor:pointer;} .m-close svg{width:15px;height:15px;}
+.m-body{padding:18px 20px;} .m-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .ff{margin-bottom:12px;} .ff label{font-size:11.3px;font-weight:700;color:var(--text-dim);display:block;margin-bottom:6px;}
+.ff input,.ff select,.ff textarea{width:100%;background:#fff;border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-size:12.6px;outline:none;font-family:inherit;} .ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);}
+.dr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-soft);font-size:12.6px;gap:14px;} .dr:last-child{border-bottom:none;} .dr .l{color:var(--text-faint);flex-shrink:0;} .dr .v{font-weight:700;text-align:right;}
+.preview{background:var(--card-soft);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.6;white-space:pre-wrap;color:var(--text-dim);margin-top:8px;}
+.calc{background:var(--brand-soft);border:1px solid #bfe3de;border-radius:11px;padding:12px 14px;margin-bottom:12px;}
+.notice{padding:10px 12px;border-radius:10px;font-size:11.8px;line-height:1.5;display:flex;gap:8px;margin-bottom:12px;} .notice svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;}
+.n-amber{background:var(--amber-soft);border:1px solid #f6dcb0;color:#92400e;} .n-sky{background:var(--sky-soft);border:1px solid #bfe0f3;color:#075985;}
+.tl{position:relative;padding-left:20px;margin-top:6px;} .tl::before{content:'';position:absolute;left:5px;top:4px;bottom:4px;width:2px;background:var(--border);}
+.tl-i{position:relative;padding-bottom:12px;font-size:12.2px;} .tl-i::before{content:'';position:absolute;left:-19px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 1px var(--border);}
+.tl-i .tm{font-size:10.6px;color:var(--text-faint);}
+.toast-wrap{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:10px;z-index:200;}
+.toast{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:12px 16px;font-size:12.6px;font-weight:700;box-shadow:0 14px 30px -14px rgba(20,25,40,.3);min-width:260px;max-width:400px;animation:slideIn .25s ease;} .toast svg{width:16px;height:16px;color:var(--emerald);flex-shrink:0;}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:none;}} .toast.fade{animation:fadeOut .3s ease forwards;} @keyframes fadeOut{to{opacity:0;transform:translateX(30px);}}
+.empty{text-align:center;padding:36px 20px;color:var(--text-faint);font-size:12.6px;} .empty svg{width:32px;height:32px;margin-bottom:8px;opacity:.5;}
+@media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.row-3,.row-2,.row-2e,.auto-grid{grid-template-columns:1fr 1fr;}.ladder,.row-4{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a2 2 0 012 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 012-2z" transform="translate(0 0)"/><path d="M9 9h6M9 13h4"/></svg></div>
+      <div class="brand-text"><div class="t1">LedgerPro</div><div class="t2" id="brandFirm">Accounting CRM</div></div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" data-s="dashboard"><svg data-lucide="layout-dashboard"></svg><span>Dashboard</span></div>
+      <div class="nav-label">Practice</div>
+      <div class="nav-item" data-s="clients"><svg data-lucide="building-2"></svg><span>Clients</span></div>
+      <div class="nav-item" data-s="invoices"><svg data-lucide="file-text"></svg><span>Invoices</span><span class="nav-badge hot" id="bInv"></span></div>
+      <div class="nav-item" data-s="recovery"><svg data-lucide="hand-coins"></svg><span>Payment Recovery</span><span class="nav-badge hot" id="bRec"></span></div>
+      <div class="nav-item" data-s="gst"><svg data-lucide="landmark"></svg><span>GST Compliance</span><span class="nav-badge" id="bGst"></span></div>
+      <div class="nav-item" data-s="documents"><svg data-lucide="folder-down"></svg><span>Document Collection</span><span class="nav-badge" id="bDoc"></span></div>
+      <div class="nav-label">Communication</div>
+      <div class="nav-item" data-s="support"><svg data-lucide="messages-square"></svg><span>Support Desk</span><span class="nav-badge hot" id="bSup"></span></div>
+      <div class="nav-item" data-s="outreach"><svg data-lucide="send"></svg><span>Outreach Log</span></div>
+      <div class="nav-label">Team</div>
+      <div class="nav-item" data-s="tasks"><svg data-lucide="list-checks"></svg><span>Team Tasks</span><span class="nav-badge hot" id="bTask"></span></div>
+      <div class="nav-item" data-s="automations"><svg data-lucide="cpu"></svg><span>Automations</span></div>
+      <div class="nav-item" data-s="settings"><svg data-lucide="settings-2"></svg><span>Settings</span></div>
+    </nav>
+    <div class="side-foot"><div class="side-card"><b><svg data-lucide="sparkles"></svg>5 automations live</b><p>Invoicing, recovery, GST, documents and AI support run on schedule.</p><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center" onclick="App.go('automations')">View Automations</button></div></div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div><div class="page-title" id="pTitle">Dashboard</div><div class="page-sub" id="pSub"></div></div>
+      <div class="search-box"><svg data-lucide="search"></svg><input id="gSearch" placeholder="Search clients or invoices…" oninput="App.gsearch(this.value)"></div>
+      <div class="top-right">
+        <div class="icon-btn" onclick="Notifs.toggle()"><svg data-lucide="bell"></svg><span class="dot-badge" id="nBadge">0</span></div>
+        <div class="icon-btn" onclick="App.go('settings')"><svg data-lucide="settings"></svg></div>
+        <div class="user-chip"><div class="avatar">PK</div><div><div class="u-name">Priya Kulkarni</div><div class="u-role">Managing Partner</div></div></div>
+        <div class="notif-panel" id="nPanel"></div>
+      </div>
+    </div>
+    <div class="content" id="content">
+
+      <section class="section active" id="s-dashboard">
+        <div class="grid kpi-grid" id="kpis"></div>
+        <div class="grid row-2" style="margin-bottom:16px">
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="bar-chart-3"></svg>Receivables Ageing</div><div class="panel-actions"><span class="link-btn" onclick="App.go('recovery')">Open recovery</span></div></div><div class="chart-wrap"><canvas id="cAging"></canvas></div></div>
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="calendar-clock"></svg>Upcoming Deadlines</div></div><div id="dDead"></div></div>
+        </div>
+        <div class="grid row-2e" style="margin-bottom:16px">
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="trending-up"></svg>Invoiced vs Collected</div></div><div class="chart-wrap"><canvas id="cTrend"></canvas></div></div>
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="alert-circle"></svg>Needs Attention</div><div class="panel-actions"><span class="link-btn" onclick="App.go('tasks')">All tasks</span></div></div><div id="dAttn"></div></div>
+        </div>
+        <div class="grid row-3">
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="clock"></svg>Automation Schedule</div></div><div id="dSched"></div></div>
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="activity"></svg>Recent Activity</div></div><div id="dAct"></div></div>
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="sparkles"></svg>AI Insights</div></div><div id="dIns"></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="s-clients">
+        <div class="sec-head"><h2>Clients</h2><p>Every client with GSTIN, plan, outstanding balance and compliance status.</p></div>
+        <div class="toolbar"><div class="search-box" style="margin-left:0"><svg data-lucide="search"></svg><input id="cliSearch" placeholder="Search name, GSTIN, city…" oninput="Clients.render()"></div><div class="spacer"></div><button class="btn btn-primary" onclick="Clients.openAdd()"><svg data-lucide="user-plus"></svg>Add Client</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Client</th><th>GSTIN</th><th>City</th><th>Plan</th><th class="num">Outstanding</th><th>GST</th><th>Documents</th><th>Actions</th></tr></thead><tbody id="cliBody"></tbody></table></div>
+      </section>
+
+      <section class="section" id="s-invoices">
+        <div class="sec-head"><h2>Invoices</h2><p>GST is calculated automatically. Invoices above the approval limit wait for partner sign-off before reaching the client.</p></div>
+        <div class="toolbar"><div class="seg" id="invSeg"></div><div class="search-box" style="margin-left:0"><svg data-lucide="search"></svg><input id="invSearch" placeholder="Search invoice or client…" oninput="Invoices.render()"></div><div class="spacer"></div><button class="btn btn-primary" onclick="Invoices.openNew()"><svg data-lucide="plus"></svg>New Invoice</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Client</th><th class="num">Amount</th><th class="num">GST</th><th class="num">Total</th><th>Issued</th><th>Due</th><th>Status</th><th>Books</th><th>Actions</th></tr></thead><tbody id="invBody"></tbody></table></div>
+      </section>
+
+      <section class="section" id="s-recovery">
+        <div class="sec-head"><h2>Payment Recovery</h2><p>Overdue invoices escalate by age. Every client-facing stage contacts the client by email, WhatsApp and an AI voice call.</p></div>
+        <div class="ladder" id="recLadder"></div>
+        <div class="toolbar"><div class="panel-title" style="font-size:14px"><svg data-lucide="list"></svg>Overdue invoices</div><div class="spacer"></div><button class="btn btn-primary" onclick="Recovery.runDaily()"><svg data-lucide="play"></svg>Run daily 10:00 check</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Client</th><th class="num">Amount due</th><th>Overdue</th><th>Stage</th><th>Last contact</th><th>Promise to pay</th><th>Actions</th></tr></thead><tbody id="recBody"></tbody></table></div>
+      </section>
+
+      <section class="section" id="s-gst">
+        <div class="sec-head"><h2>GST Compliance</h2><p>Monthly cycle: collect data, compute net GST payable, get client approval, then file.</p></div>
+        <div class="grid row-4" style="margin-bottom:16px" id="gstCards"></div>
+        <div class="grid row-2" style="margin-bottom:16px">
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="scale"></svg>Output Tax vs Input Credit</div></div><div class="chart-wrap"><canvas id="cGst"></canvas></div></div>
+          <div class="card panel"><div class="panel-head"><div class="panel-title"><svg data-lucide="git-merge"></svg>Filing Pipeline</div></div><div id="gstPipe"></div></div>
+        </div>
+        <div class="toolbar"><div class="seg" id="gstSeg"></div><div class="spacer"></div><button class="btn btn-primary" onclick="GST.runCycle()"><svg data-lucide="play"></svg>Run monthly cycle</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Client</th><th>Return</th><th>Period</th><th>Due</th><th>Data</th><th class="num">Output tax</th><th class="num">Input credit</th><th class="num">Net payable</th><th>Status</th><th>Actions</th></tr></thead><tbody id="gstBody"></tbody></table></div>
+      </section>
+
+      <section class="section" id="s-documents">
+        <div class="sec-head"><h2>Document Collection</h2><p>Every Monday, clients with pending documents are chased. After the reminder limit, your team is asked to call.</p></div>
+        <div class="grid row-4" style="margin-bottom:16px" id="docKpis"></div>
+        <div class="toolbar"><div class="seg" id="docSeg"></div><div class="spacer"></div><button class="btn btn-primary" onclick="Docs.runChase()"><svg data-lucide="play"></svg>Run Monday chase</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Client</th><th>Missing documents (click to mark received)</th><th>Pending</th><th>Reminders</th><th>Status</th><th>Actions</th></tr></thead><tbody id="docBody"></tbody></table></div>
+      </section>
+
+      <section class="section" id="s-support">
+        <div class="sec-head"><h2>Support Desk</h2><p>One AI assistant answers clients on web chat, WhatsApp and voice in Hindi, English or Hinglish. Unsure questions go to your team.</p></div>
+        <div class="grid row-4" style="margin-bottom:16px" id="supKpis"></div>
+        <div class="convo"><div class="c-list"><div class="c-filter"><select class="filter" style="flex:1" id="sFilter" onchange="Support.render()"><option value="">All conversations</option><option value="ai">Resolved by AI</option><option value="handoff">Needs team</option><option value="web">Web chat</option><option value="whatsapp">WhatsApp</option><option value="voice">Voice</option></select><button class="btn btn-sm btn-primary" onclick="Support.openNew()"><svg data-lucide="plus"></svg>Test</button></div><div id="sList"></div></div><div class="thread" id="sThread"></div></div>
+      </section>
+
+      <section class="section" id="s-outreach">
+        <div class="sec-head"><h2>Outreach Log</h2><p>Every email, WhatsApp message and voice call sent on your behalf — one searchable history.</p></div>
+        <div class="grid row-4" style="margin-bottom:16px" id="outKpis"></div>
+        <div class="toolbar"><div class="search-box" style="margin-left:0"><svg data-lucide="search"></svg><input id="outSearch" placeholder="Search recipient or subject…" oninput="Outreach.render()"></div><select class="filter" id="outChan" onchange="Outreach.render()"><option value="">All channels</option><option value="email">Email</option><option value="whatsapp">WhatsApp</option><option value="voice">Voice call</option></select><select class="filter" id="outCat" onchange="Outreach.render()"><option value="">All categories</option><option>Invoicing</option><option>Payment recovery</option><option>GST</option><option>Documents</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>Time</th><th>Channel</th><th>Category</th><th>Recipient</th><th>Subject / script</th><th>Status</th><th></th></tr></thead><tbody id="outBody"></tbody></table></div>
+      </section>
+
+      <section class="section" id="s-tasks">
+        <div class="sec-head"><h2>Team Tasks</h2><p>Approvals, escalations and call-backs the automations hand over to a person.</p></div>
+        <div class="toolbar"><div class="seg" id="taskSeg"></div></div>
+        <div id="taskList"></div>
+      </section>
+
+      <section class="section" id="s-automations">
+        <div class="sec-head"><h2>Automations</h2><p>The five automation suites that run your practice. Pause, run on demand and review results.</p></div>
+        <div class="grid auto-grid" id="autoGrid"></div>
+        <div class="card panel" style="margin-top:16px"><div class="panel-head"><div class="panel-title"><svg data-lucide="history"></svg>Run History</div></div><div class="table-wrap" style="box-shadow:none"><table><thead><tr><th>Time</th><th>Automation</th><th>Result</th></tr></thead><tbody id="autoLog"></tbody></table></div></div>
+      </section>
+
+      <section class="section" id="s-settings">
+        <div class="sec-head"><h2>Settings</h2><p>Make this template yours: firm details, rules and your own connections. Values stay in this browser.</p></div>
+        <div class="grid auto-grid" id="setGrid"></div>
+        <div class="card panel" style="margin-top:16px" id="kbCard"></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+<div class="overlay" id="ov"><div class="modal" id="mb"></div></div>
+<div class="toast-wrap" id="tw"></div>
+<script>
+/* ===== helpers ===== */
+const $=id=>document.getElementById(id);
+const DAY=864e5,H=36e5,NOW=new Date();
+const addD=(d,n)=>new Date(d.getTime()+n*DAY);
+const ago=h=>new Date(Date.now()-h*H);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const fmtD=d=>d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+const fmtDS=d=>d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+const clock=d=>d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+const ymd=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+const sameDay=(a,b)=>a&&b&&a.toDateString()===b.toDateString();
+function rel(d){if(!d)return'—';const ms=d.getTime()-Date.now(),a=Math.abs(ms),h=Math.floor(a/H),m=Math.round((a-h*H)/6e4);const t=a<6e4?'now':a<H?m+'m':a<2*DAY?h+'h '+m+'m':Math.round(a/DAY)+'d';return t==='now'?'just now':ms>=0?'in '+t:t+' ago';}
+const ini=n=>String(n).split(' ').map(w=>w[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+const Store={mem:{},get(k){try{const v=localStorage.getItem('ledgerpro_'+k);if(v!==null)return v;}catch(e){}return this.mem[k]||'';},set(k,v){this.mem[k]=v;try{localStorage.setItem('ledgerpro_'+k,v);}catch(e){}}};
+const DEF={firm:'Kulkarni & Associates',firm_email:'accounts@kulkarniassociates.in',firm_phone:'+91 22 4000 1200',partner_email:'partner@kulkarniassociates.in',team_email:'team@kulkarniassociates.in',pay_link:'https://pay.kulkarniassociates.in/pay',upload_link:'https://upload.kulkarniassociates.in',acc_software:'Zoho Books',approval_threshold:'50000',default_gst:'18',default_due:'15',cut_gentle:'7',cut_firm:'15',cut_final:'30',doc_limit:'3'};
+const S=k=>{const v=Store.get(k);return v!==''&&v!=null?v:(DEF[k]||'');};
+const N=k=>Number(S(k))||0;
+const Charts={};function mk(id,cfg){if(Charts[id])Charts[id].destroy();Charts[id]=new Chart($(id),cfg);}
+const tick={color:'#94a2ab',font:{size:10.5}};
+
+/* ===== clients ===== */
+let CLIENTS=[
+ {id:'c1',name:'Sharma Traders Pvt Ltd',gstin:'27AAACS4821F1ZK',contact:'Rajesh Sharma',email:'accounts@sharmatraders.in',phone:'+919820011101',city:'Mumbai',plan:'Bookkeeping + GST + Payroll',fee:75000},
+ {id:'c2',name:'Mehta Textiles',gstin:'24AABCM3310K1Z2',contact:'Hetal Mehta',email:'accounts@mehta-textiles.in',phone:'+919825022202',city:'Surat',plan:'Bookkeeping + GST',fee:36000},
+ {id:'c3',name:'Patel Foods LLP',gstin:'24AAFFP7712L1ZQ',contact:'Jignesh Patel',email:'finance@patelfoods.in',phone:'+919824033303',city:'Ahmedabad',plan:'Full Compliance',fee:100000},
+ {id:'c4',name:'Joshi Engineering',gstin:'27AABCJ5560M1Z8',contact:'Anil Joshi',email:'admin@joshi-eng.in',phone:'+919822044404',city:'Pune',plan:'Bookkeeping + GST + TDS',fee:54000},
+ {id:'c5',name:'Verma Retail',gstin:'07AAGFV9031R1ZD',contact:'Sunil Verma',email:'owner@vermaretail.in',phone:'+919811055505',city:'Delhi',plan:'Bookkeeping + Audit',fee:77000},
+ {id:'c6',name:'Iyer Pharma',gstin:'33AAECI2204Q1Z6',contact:'Lakshmi Iyer',email:'accounts@iyerpharma.in',phone:'+919840066606',city:'Chennai',plan:'GST + Audit Support',fee:30000},
+ {id:'c7',name:'Kapoor Logistics',gstin:'06AAACK6678P1ZX',contact:'Rohit Kapoor',email:'finance@kapoorlogistics.in',phone:'+919810077707',city:'Gurugram',plan:'GST + Reconciliation',fee:45000},
+ {id:'c8',name:'Reddy Constructions',gstin:'36AAHCR1189N1Z4',contact:'Suresh Reddy',email:'accounts@reddycons.in',phone:'+919848088808',city:'Hyderabad',plan:'Bookkeeping + GST',fee:62000},
+ {id:'c9',name:'Nair Spices',gstin:'32AAKCN4403H1Z9',contact:'Meena Nair',email:'meena@nairspices.in',phone:'+919847099909',city:'Kochi',plan:'Starter Bookkeeping',fee:25000},
+ {id:'c10',name:'Singh Auto Components',gstin:'03AAECS8821J1ZB',contact:'Harpreet Singh',email:'accounts@singhauto.in',phone:'+919815011110',city:'Ludhiana',plan:'Bookkeeping + Payroll',fee:48000},
+];
+const cli=id=>CLIENTS.find(c=>c.id===id);
+const cliByName=n=>CLIENTS.find(c=>c.name.toLowerCase()===String(n).toLowerCase());
+
+/* ===== invoices ===== */
+const mkInv=(id,c,desc,amount,issuedAgo,dueIn,status,x={})=>{const gst=18,gstAmt=amount*gst/100;return Object.assign({id,c,desc,amount,gst,gstAmt,total:amount+gstAmt,issued:addD(NOW,-issuedAgo),due:new Date(NOW.getTime()+dueIn*DAY-5000),status,paidOn:null,synced:true,sentVia:status==='awaiting_approval'?[]:['email','whatsapp'],lastReminderAt:null,lastStage:null,promise:null,history:[]},x);};
+let INVOICES=[
+ mkInv('INV-1001','c1','Monthly bookkeeping and GST filing - Aug 2026',75000,40,-25,'paid',{paidOn:addD(NOW,-22)}),
+ mkInv('INV-1002','c6','Quarterly audit support - Q2 FY27',30000,4,21,'sent'),
+ mkInv('INV-1003','c7','GST reconciliation and notice reply',45000,21,-6,'sent'),
+ mkInv('INV-20260901-004','c2','Monthly bookkeeping - Aug 2026',36000,18,-3,'sent'),
+ mkInv('INV-20260820-011','c3','Quarterly GST and TDS compliance',100000,30,-12,'sent',{lastReminderAt:addD(NOW,-4),lastStage:'gentle'}),
+ mkInv('INV-20260805-002','c4','Annual accounts finalisation support',54000,45,-25,'sent',{lastReminderAt:addD(NOW,-9),lastStage:'firm'}),
+ mkInv('INV-20260710-007','c5','Retail bookkeeping and inventory audit',77000,75,-47,'sent',{lastReminderAt:addD(NOW,-17),lastStage:'final'}),
+ mkInv('INV-'+ymd(NOW)+'-001','c1','Monthly bookkeeping and GST filing - Sep 2026',75000,0,15,'awaiting_approval'),
+ mkInv('INV-'+ymd(addD(NOW,-2))+'-002','c9','Monthly bookkeeping - Sep 2026',25000,2,13,'sent'),
+ mkInv('INV-1004','c8','Monthly bookkeeping - Aug 2026',62000,34,-19,'paid',{paidOn:addD(NOW,-9)}),
+ mkInv('INV-1005','c10','Monthly bookkeeping and payroll - Aug 2026',48000,32,-17,'paid',{paidOn:addD(NOW,-14)}),
+ mkInv('INV-1006','c3','Monthly bookkeeping - Aug 2026',40000,48,-33,'paid',{paidOn:addD(NOW,-30)}),
+ mkInv('INV-1007','c4','TDS return filing - Q1',15000,52,-37,'paid',{paidOn:addD(NOW,-35)}),
+ mkInv('INV-1008','c10','Monthly bookkeeping and payroll - Sep 2026',48000,6,9,'sent'),
+];
+let invSeq=2;
+const newInvId=()=>{invSeq++;return 'INV-'+ymd(new Date())+'-'+String(invSeq).padStart(3,'0');};
+const invBy=id=>INVOICES.find(i=>i.id.toUpperCase()===String(id).toUpperCase());
+const isOverdue=i=>i.status==='sent'&&i.due<new Date();
+const daysOver=i=>Math.max(1,Math.floor((Date.now()-i.due)/DAY));
+const stageOf=d=>d<=N('cut_gentle')?'gentle':d<=N('cut_firm')?'firm':d<=N('cut_final')?'final':'escalate';
+const STAGES={gentle:{l:'Gentle',c:'var(--sky)',p:'p-sky'},firm:{l:'Firm',c:'var(--amber)',p:'p-amber'},final:{l:'Final notice',c:'var(--orange)',p:'p-orange'},escalate:{l:'Escalate',c:'var(--rose)',p:'p-rose'}};
+const outstanding=()=>INVOICES.filter(i=>i.status==='sent').reduce((s,i)=>s+i.total,0);
+
+/* ===== GST returns ===== */
+function nextDue(day){const t=new Date();let d=new Date(t.getFullYear(),t.getMonth(),day,23,59);if(d<t)d=new Date(t.getFullYear(),t.getMonth()+1,day,23,59);return d;}
+const periodOf=due=>new Date(due.getFullYear(),due.getMonth()-1,1).toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+const dueFor=type=>nextDue(type==='GSTR-1'?11:20);
+const GR=(id,c,type,data,out,itc,status)=>({id,c,type,due:dueFor(type),period:periodOf(dueFor(type)),data,out,itc,status,requestedAt:null,summaryAt:null});
+let RETURNS=[
+ GR('GR-1','c1','GSTR-3B',true,245000,168000,'awaiting_client'),
+ GR('GR-2','c3','GSTR-1',false,0,0,'data_pending'),
+ GR('GR-3','c4','GSTR-3B',true,96000,101500,'ready'),
+ GR('GR-4','c2','GSTR-1',false,0,0,'data_pending'),
+ GR('GR-5','c6','GSTR-3B',true,132000,98000,'approved'),
+ GR('GR-6','c7','GSTR-3B',true,187000,150000,'filed'),
+ GR('GR-7','c5','GSTR-1',false,0,0,'data_pending'),
+ GR('GR-8','c8','GSTR-3B',true,310000,265000,'ready'),
+ GR('GR-9','c9','GSTR-1',true,54000,0,'awaiting_client'),
+];
+RETURNS.find(r=>r.id==='GR-1').summaryAt=ago(20);RETURNS.find(r=>r.id==='GR-9').summaryAt=ago(30);
+const GST_STATUS={data_pending:['Data pending','p-amber'],ready:['Ready to send','p-sky'],awaiting_client:['Awaiting client YES','p-violet'],approved:['Approved','p-blue'],filed:['Filed','p-emerald']};
+const netOf=r=>r.type==='GSTR-3B'?r.out-r.itc:null;
+
+/* ===== documents ===== */
+const DOC=(id,c,items,pending,rem,last)=>({id,c,items:items.map(n=>({n,got:false})),since:addD(NOW,-pending),reminders:rem,lastReminder:last||null});
+let DOCS=[
+ DOC('D-1','c2',['Bank statement (Sep)','Purchase invoices (Sep)'],4,1,addD(NOW,-4)),
+ DOC('D-2','c3',['TDS certificates','Sales register (Sep)'],18,3,addD(NOW,-4)),
+ DOC('D-3','c5',['Bank statement (Sep)'],2,0,null),
+ DOC('D-4','c9',['Form 16A','Credit notes (Sep)'],9,2,addD(NOW,-3)),
+];
+const pendingItems=d=>d.items.filter(i=>!i.got);
+
+/* ===== tasks / notifications / activity ===== */
+let TASKS=[],taskSeq=1;
+const TASK_META={approval:{ic:'shield-check',c:'var(--violet)',bg:'var(--violet-soft)',l:'Approval'},escalation:{ic:'phone-call',c:'var(--rose)',bg:'var(--rose-soft)',l:'Escalation'},doc_call:{ic:'phone-outgoing',c:'var(--amber)',bg:'var(--amber-soft)',l:'Call client'},chat_followup:{ic:'message-circle',c:'var(--sky)',bg:'var(--sky-soft)',l:'Chat follow-up'}};
+function addTask(o){if(TASKS.some(t=>t.type===o.type&&t.ref===o.ref&&t.status==='open'))return null;const t=Object.assign({id:'T-'+(taskSeq++),status:'open',at:o.at||new Date(),prio:'normal',note:''},o);TASKS.unshift(t);if(!o.silent)Notifs.add(`${t.owner}: ${t.title}`);return t;}
+function closeTasks(type,ref,note){TASKS.forEach(t=>{if(t.type===type&&t.ref===ref&&t.status==='open'){t.status='done';t.doneAt=new Date();t.note=note||t.note;}});}
+let NOTIFS=[],ACT=[],RUNLOG=[];
+const Notifs={toggle(){$('nPanel').classList.toggle('show');this.render();},close(){$('nPanel').classList.remove('show');},add(text,at){NOTIFS.unshift({text,at:at||new Date(),read:false});this.badge();},badge(){const n=NOTIFS.filter(x=>!x.read).length;$('nBadge').textContent=n;$('nBadge').style.display=n?'flex':'none';},readAll(){NOTIFS.forEach(n=>n.read=true);this.render();this.badge();},render(){$('nPanel').innerHTML=`<div class="notif-head">Alerts<span onclick="Notifs.readAll()">Mark all read</span></div>`+(NOTIFS.map(n=>`<div class="notif-item ${n.read?'':'unread'}">${esc(n.text)}<div class="nt">${rel(n.at)}</div></div>`).join('')||'<div class="empty">No alerts</div>');}};
+
+/* ===== communications ===== */
+let COMMS=[],commSeq=1;
+const CATS={invoice:'Invoicing',approval:'Invoicing',reminder_gentle:'Payment recovery',reminder_firm:'Payment recovery',reminder_final:'Payment recovery',escalation:'Payment recovery',gst_summary:'GST',gst_data:'GST',docs:'Documents',docs_alert:'Documents'};
+const CAT_PILL={Invoicing:'p-blue','Payment recovery':'p-orange',GST:'p-violet',Documents:'p-amber'};
+function send(ch,purpose,to,subject,body,ref,o={}){let status='Delivered';if(ch==='voice'){const h=[...(to+purpose)].reduce((s,x)=>s+x.charCodeAt(0),0)%6;status=h===0?'No answer':h===1?'Voicemail':'Answered';}if(o.internal)status='Internal';const r={id:commSeq++,at:o.at||new Date(),ch,purpose,cat:CATS[purpose]||'Invoicing',to,subject:subject||'',body,status,ref:ref||'',cc:o.cc||''};COMMS.unshift(r);return r;}
+
+/* ===== message builders ===== */
+const FIRM=()=>S('firm');
+function mInvEmail(i){const c=cli(i.c);return{subject:`Invoice ${i.id} from ${FIRM()}`,body:`Dear ${c.name},\n\nPlease find your invoice ${i.id} for: ${i.desc}.\n\nAmount: ${inr(i.amount)}\nGST (${i.gst}%): ${inr(i.gstAmt)}\nTotal payable: ${inr(i.total)}\nDue date: ${fmtD(i.due)}\n\nPayment link: ${S('pay_link')}\n\nRegards,\n${FIRM()}`};}
+const mInvWA=i=>`Hi ${cli(i.c).name}, your invoice ${i.id} for ${inr(i.total)} is ready (due ${fmtD(i.due)}). Pay here: ${S('pay_link')}`;
+function mRemEmail(i,st,d){const c=cli(i.c);if(st==='gentle')return{subject:`Friendly reminder: ${i.id}`,body:`Hi ${c.name},\n\nJust a quick reminder that invoice ${i.id} of ${inr(i.total)} is ${d} days past due. If you have already paid, please ignore this note.\n\nPay here: ${S('pay_link')}\n\nThank you,\n${FIRM()}`};if(st==='firm')return{subject:`Payment overdue: ${i.id} (${d} days)`,body:`Dear ${c.name},\n\nInvoice ${i.id} for ${inr(i.total)} is now ${d} days overdue. Please clear the payment within 3 working days or let us know the expected date.\n\nPay here: ${S('pay_link')}\n\nRegards,\n${FIRM()}`};return{subject:`FINAL NOTICE: ${i.id}`,body:`Dear ${c.name},\n\nThis is a final notice for invoice ${i.id} (${inr(i.total)}), overdue by ${d} days. Services may be paused if payment is not received within 7 days.\n\nRegards,\n${FIRM()}`};}
+function mRemWA(i,st,d){const n=cli(i.c).name;if(st==='gentle')return`Hi ${n}, gentle reminder: invoice ${i.id} of ${inr(i.total)} is ${d} days past due. Pay here: ${S('pay_link')}`;if(st==='firm')return`Dear ${n}, invoice ${i.id} of ${inr(i.total)} is ${d} days overdue. Please pay within 3 working days: ${S('pay_link')}`;return`FINAL NOTICE: ${n}, invoice ${i.id} (${inr(i.total)}) is ${d} days overdue. Services may be paused if payment is not received within 7 days.`;}
+const mRemVoice=(i,st,d)=>`AI voice agent (Hindi) calls ${cli(i.c).contact}: invoice ${i.id}, ${inr(i.total)}, ${d} days overdue — ${st==='gentle'?'friendly reminder':st==='firm'?'asks for a payment date within 3 working days':'final notice, services may pause in 7 days'}.`;
+function mGstSummary(r){const c=cli(r.c),n=netOf(r);return{subject:`${r.type} for ${r.period}: summary for your approval`,body:`Dear ${c.name},\n\n${r.type} for ${r.period} is ready.\n\nOutput tax: ${inr(r.out)}\n${r.type==='GSTR-3B'?`Input tax credit: ${inr(r.itc)}\nNet payable: ${n>=0?inr(n):inr(-n)+' credit carried forward'}\n`:''}Due date: ${fmtD(r.due)}\n\nReply YES to approve filing.\n\nRegards,\n${FIRM()}`};}
+const mGstSummaryWA=r=>{const c=cli(r.c),n=netOf(r);return`Hi ${c.name}, ${r.type} for ${r.period} is ready.${n!==null?` Net payable: ${n>=0?inr(n):inr(-n)+' credit carried forward'}.`:''} Please check your email and reply YES to approve.`;};
+const mGstReqEmail=r=>({subject:`Action needed: data for ${r.type} (${r.period}), due ${fmtD(r.due)}`,body:`Dear ${cli(r.c).name},\n\nTo file ${r.type} for ${r.period} by ${fmtD(r.due)}, we still need your sales register, purchase register and any credit notes.\n\nUpload here: ${S('upload_link')}\n\nRegards,\n${FIRM()}`});
+const mGstReqWA=r=>`Hi ${cli(r.c).name}, we still need your sales and purchase registers to file ${r.type} for ${r.period} (due ${fmtD(r.due)}). Upload: ${S('upload_link')}`;
+const mDocEmail=d=>({subject:`Documents needed from ${cli(d.c).name}`,body:`Hi ${cli(d.c).name},\n\nWe are still waiting for: ${pendingItems(d).map(i=>i.n).join(', ')}.\n\nYou can upload them here: ${S('upload_link')}\n\nThank you,\n${FIRM()}`});
+const mDocWA=d=>`Hi ${cli(d.c).name}, we are still waiting for: ${pendingItems(d).map(i=>i.n).join(', ')}. Upload here: ${S('upload_link')}`;
+
+/* ===== invoice operations ===== */
+function dispatchInvoice(inv,o={}){const c=cli(inv.c),e=mInvEmail(inv);send('email','invoice',c.name,e.subject,e.body,inv.id,o);send('whatsapp','invoice',c.name,'',mInvWA(inv),inv.id,o);inv.status='sent';inv.sentVia=['email','whatsapp'];}
+function createInvoice(o){const gst=Number(o.gst),gstAmt=o.amount*gst/100,total=o.amount+gstAmt;const inv={id:newInvId(),c:o.c,desc:o.desc,amount:o.amount,gst,gstAmt,total,issued:new Date(),due:addD(new Date(),o.dueDays),status:'draft',paidOn:null,synced:true,sentVia:[],lastReminderAt:null,lastStage:null,promise:null,history:[]};INVOICES.unshift(inv);
+ App.log('var(--blue)',`<b>${esc(inv.id)}</b> pushed to ${esc(S('acc_software'))} for <b>${esc(cli(inv.c).name)}</b>`);
+ if(total>N('approval_threshold')||!AUTOS.find(a=>a.id==='invoice').on){inv.status='awaiting_approval';send('email','approval','Partner',`Approval needed: ${inv.id} for ${cli(inv.c).name}`,`Invoice ${inv.id} for ${cli(inv.c).name} totals ${inr(total)} (incl. GST ${inr(gstAmt)}).\nPlease review and approve before it is sent to the client.`,inv.id,{internal:true});addTask({type:'approval',owner:'Partner',title:`Approve invoice ${inv.id}`,detail:`${cli(inv.c).name} · ${inr(total)} exceeds the ${inr(N('approval_threshold'))} approval limit.`,ref:inv.id,prio:'high'});App.log('var(--violet)',`<b>${esc(inv.id)}</b> (${inr(total)}) sent to partner for approval`);}
+ else{dispatchInvoice(inv);App.log('var(--emerald)',`<b>${esc(inv.id)}</b> emailed and sent on WhatsApp to <b>${esc(cli(inv.c).name)}</b>`);}
+ return inv;}
+function approveInvoice(inv){dispatchInvoice(inv);closeTasks('approval',inv.id,'Approved');App.log('var(--emerald)',`Partner approved <b>${esc(inv.id)}</b> — sent to client`);}
+function rejectInvoice(inv){inv.status='rejected';closeTasks('approval',inv.id,'Rejected');App.log('var(--rose)',`Partner rejected <b>${esc(inv.id)}</b>`);}
+function markPaid(inv){inv.status='paid';inv.paidOn=new Date();inv.promise=null;closeTasks('escalation',inv.id,'Invoice paid');App.log('var(--emerald)',`<b>${esc(inv.id)}</b> paid — ${inr(inv.total)} from <b>${esc(cli(inv.c).name)}</b>`);}
+
+/* ===== recovery engine ===== */
+function remindInvoice(inv){const c=cli(inv.c),d=daysOver(inv),st=stageOf(d);inv.lastReminderAt=new Date();inv.lastStage=st;
+ if(st==='escalate'){send('email','escalation','Partner',`Escalation: ${c.name} overdue ${d} days`,`${c.name} has not paid ${inv.id} (${inr(inv.total)}) for ${d} days. Please call the client personally and decide on next steps.`,inv.id,{internal:true});addTask({type:'escalation',owner:'Partner',title:`Call ${c.name} personally`,detail:`${inv.id} · ${inr(inv.total)} overdue ${d} days. Decide next steps.`,ref:inv.id,prio:'high'});return 'escalated';}
+ const e=mRemEmail(inv,st,d);send('email','reminder_'+st,c.name,e.subject,e.body,inv.id,{cc:st==='final'?S('partner_email'):''});send('whatsapp','reminder_'+st,c.name,'',mRemWA(inv,st,d),inv.id);send('voice','reminder_'+st,c.name,'Voice call · '+STAGES[st].l+' reminder',mRemVoice(inv,st,d),inv.id);return 'sent';}
+function runRecovery(){const list=INVOICES.filter(isOverdue);let sent=0,esc2=0,skip=0;list.forEach(i=>{if(sameDay(i.lastReminderAt,new Date())){skip++;return;}const r=remindInvoice(i);if(r==='sent')sent++;else esc2++;});return{list:list.length,sent,esc:esc2,skip};}
+
+/* ===== GST engine ===== */
+function gstRequest(r){const e=mGstReqEmail(r),c=cli(r.c);send('email','gst_data',c.name,e.subject,e.body,r.id);send('whatsapp','gst_data',c.name,'',mGstReqWA(r),r.id);send('voice','gst_data',c.name,'Voice call · data request',`AI voice agent (Hindi) calls ${c.contact} asking for sales and purchase registers for ${r.type} ${r.period}, due ${fmtD(r.due)}.`,r.id);r.requestedAt=new Date();}
+function gstSummary(r){const e=mGstSummary(r),c=cli(r.c);send('email','gst_summary',c.name,e.subject,e.body,r.id);send('whatsapp','gst_summary',c.name,'',mGstSummaryWA(r),r.id);r.status='awaiting_client';r.summaryAt=new Date();}
+function runGst(){let req=0,sum=0,skip=0;RETURNS.forEach(r=>{if(r.status==='data_pending'){if(sameDay(r.requestedAt,new Date())){skip++;return;}gstRequest(r);req++;}else if(r.status==='ready'){gstSummary(r);sum++;}});return{req,sum,skip};}
+
+/* ===== documents engine ===== */
+function docRemind(d){const c=cli(d.c),e=mDocEmail(d);send('email','docs',c.name,e.subject,e.body,d.id);send('whatsapp','docs',c.name,'',mDocWA(d),d.id);send('voice','docs',c.name,'Voice call · document reminder',`AI voice agent (Hindi) calls ${c.contact} about pending documents: ${pendingItems(d).map(i=>i.n).join(', ')}.`,d.id);d.reminders++;d.lastReminder=new Date();}
+function docAlert(d){const c=cli(d.c);send('email','docs_alert','Team',`Call needed: ${c.name} still pending ${Math.max(1,Math.floor((Date.now()-d.since)/DAY))} days`,`${c.name} has been reminded ${d.reminders} times. Still missing: ${pendingItems(d).map(i=>i.n).join(', ')}. Please call the client directly.`,d.id,{internal:true});return addTask({type:'doc_call',owner:'Team',title:`Call ${c.name} about documents`,detail:`Reminded ${d.reminders} times. Missing: ${pendingItems(d).map(i=>i.n).join(', ')}.`,ref:d.id,prio:'high'});}
+function runDocs(){let rem=0,alert=0,skip=0;DOCS.forEach(d=>{if(!pendingItems(d).length)return;if(d.reminders>=N('doc_limit')){if(docAlert(d))alert++;return;}if(sameDay(d.lastReminder,new Date())){skip++;return;}docRemind(d);rem++;});return{rem,alert,skip};}
+</script>
+<script>
+/* ===== app core ===== */
+const TITLES={dashboard:['Dashboard','Your practice at a glance'],clients:['Clients','Client master and compliance status'],invoices:['Invoices','Raise, approve and track invoices'],recovery:['Payment Recovery','Overdue invoices by escalation stage'],gst:['GST Compliance','Monthly return cycle'],documents:['Document Collection','Chase pending client documents'],support:['Support Desk','AI answers on chat, WhatsApp and voice'],outreach:['Outreach Log','Every email, message and call sent'],tasks:['Team Tasks','Work handed to your people'],automations:['Automations','Schedules, runs and results'],settings:['Settings','Firm, rules and connections']};
+const App={cur:'dashboard',
+ go(s){this.cur=s;document.querySelectorAll('.nav-item').forEach(e=>e.classList.toggle('active',e.dataset.s===s));document.querySelectorAll('.section').forEach(e=>e.classList.toggle('active',e.id==='s-'+s));$('pTitle').textContent=TITLES[s][0];$('pSub').textContent=TITLES[s][1];$('content').scrollTop=0;Notifs.close();(RENDER[s]||(()=>{}))();this.badges();lucide.createIcons();},
+ refresh(){(RENDER[this.cur]||(()=>{}))();this.badges();lucide.createIcons();},
+ gsearch(q){q=q.trim().toLowerCase();if(!q)return;if(CLIENTS.some(c=>c.name.toLowerCase().includes(q))){$('cliSearch').value=q;this.go('clients');}else if(INVOICES.some(i=>i.id.toLowerCase().includes(q))){$('invSearch').value=q;Invoices.tab='all';this.go('invoices');}},
+ badges(){const s=(id,n)=>{$(id).textContent=n||'';};s('bInv',INVOICES.filter(i=>i.status==='awaiting_approval').length);s('bRec',INVOICES.filter(isOverdue).length);s('bGst',RETURNS.filter(r=>r.status!=='filed').length);s('bDoc',DOCS.filter(d=>pendingItems(d).length).length);s('bSup',CHATS.filter(c=>c.status==='handoff').length);s('bTask',TASKS.filter(t=>t.status==='open').length);Notifs.badge();},
+ brand(){$('brandFirm').textContent=S('firm');document.title='LedgerPro — '+S('firm');},
+ toast(msg,icon='check-circle'){const el=document.createElement('div');el.className='toast';el.innerHTML=`<svg data-lucide="${icon}"></svg><span>${esc(msg)}</span>`;$('tw').appendChild(el);lucide.createIcons({nodes:[el.querySelector('svg')]});setTimeout(()=>{el.classList.add('fade');setTimeout(()=>el.remove(),320);},3400);},
+ modal(title,body,foot=''){$('mb').innerHTML=`<div class="m-head"><h3>${title}</h3><div class="m-close" onclick="App.close()"><svg data-lucide="x"></svg></div></div><div class="m-body">${body}</div>${foot?`<div class="m-foot">${foot}</div>`:''}`;$('ov').classList.add('show');lucide.createIcons();},
+ close(){$('ov').classList.remove('show');},
+ log(c,t,at){ACT.unshift({c,t,at:at||new Date()});}
+};
+$('ov').addEventListener('click',e=>{if(e.target.id==='ov')App.close();});
+document.querySelectorAll('.nav-item').forEach(e=>e.addEventListener('click',()=>App.go(e.dataset.s)));
+function logRun(a,s,ok=true){RUNLOG.unshift({a,at:new Date(),s,ok});const A=AUTOS.find(x=>x.id===a);if(A){A.last=new Date();A.runs++;}}
+const statusPill=i=>{if(i.status==='paid')return'<span class="pill p-emerald">Paid</span>';if(i.status==='awaiting_approval')return'<span class="pill p-violet">Awaiting approval</span>';if(i.status==='rejected')return'<span class="pill p-gray">Rejected</span>';if(isOverdue(i))return`<span class="pill p-rose">Overdue ${daysOver(i)}d</span>`;return'<span class="pill p-sky">Sent</span>';};
+
+/* ===== AI support engine ===== */
+const CH_LABEL={web:'Web chat',whatsapp:'WhatsApp',voice:'Voice call'};
+const CH_ICON={web:'globe',whatsapp:'message-circle',voice:'phone'};
+const CH_PILL={web:'p-blue',whatsapp:'p-emerald',voice:'p-violet'};
+const detectLang=t=>(/[ऀ-ॿ]/.test(t)||/\b(kab|kya|kitna|kitni|mera|meri|mujhe|bharna|hai|hain|nahi|chahiye|batao|bataiye|karna|paisa|bhejo|aap|kaise|kaunse|kahan|ka status)\b/i.test(t))?'hi':'en';
+const retInfo=(cid,type,hi)=>{const r=RETURNS.find(x=>x.c===cid&&x.type===type);if(!r)return'';const s=GST_STATUS[r.status][0].toLowerCase();return hi?` Aapka ${type} (${r.period}) abhi: ${s}.`:` Your ${type} for ${r.period} is currently: ${s}.`;};
+const customKB=()=>{try{return JSON.parse(Store.get('kb_custom')||'[]');}catch(e){return[];}};
+function aiAnswer(text,ctx={}){
+ const t=text.trim(),lo=t.toLowerCase(),hi=detectLang(t)==='hi',cid=ctx.cid;
+ const R=(en,h,o={})=>Object.assign({reply:hi?h:en,handoff:false,lang:hi?'hi':'en',tool:null,category:'general'},o);
+ const m=t.match(/INV-[\w-]+/i);
+ if(m){const id=m[0].toUpperCase(),inv=invBy(id);
+  if(!inv)return R(`I couldn't find invoice ${id}. Please check the number, or a team member can confirm within one working day.`,`Mujhe invoice ${id} nahi mila. Kripya number check karein, ya team ek working day mein confirm karegi.`,{tool:'Check Invoice Status',category:'invoice'});
+  const d=isOverdue(inv)?daysOver(inv):0;
+  if(inv.status==='paid')return R(`Invoice ${id} (${inr(inv.total)}) was paid on ${fmtD(inv.paidOn)}. Thank you!`,`Invoice ${id} (${inr(inv.total)}) ka payment ${fmtD(inv.paidOn)} ko ho chuka hai. Dhanyavaad!`,{tool:'Check Invoice Status',category:'invoice'});
+  if(inv.status==='awaiting_approval')return R(`Invoice ${id} is with our partner for approval and will reach you shortly.`,`Invoice ${id} partner ke approval mein hai, jald aapko mil jayega.`,{tool:'Check Invoice Status',category:'invoice'});
+  if(inv.status==='rejected')return R(`Invoice ${id} was cancelled. A team member can share the details.`,`Invoice ${id} cancel ho chuka hai. Team details share kar sakti hai.`,{tool:'Check Invoice Status',category:'invoice'});
+  if(d)return R(`Invoice ${id} (${inr(inv.total)}) is overdue by ${d} days. You can pay here: ${S('pay_link')}`,`Invoice ${id} (${inr(inv.total)}) ${d} din se overdue hai. Yahan pay karein: ${S('pay_link')}`,{tool:'Check Invoice Status',category:'invoice'});
+  return R(`Invoice ${id} (${inr(inv.total)}) is pending, due on ${fmtD(inv.due)}.`,`Invoice ${id} (${inr(inv.total)}) pending hai, due date ${fmtD(inv.due)} hai.`,{tool:'Check Invoice Status',category:'invoice'});}
+ for(const e of customKB()){const keys=String(e.keys||'').toLowerCase().split(',').map(x=>x.trim()).filter(Boolean);if(keys.some(k=>lo.includes(k)))return R(e.answer,e.answer,{category:'custom'});}
+ if(/(mutual fund|invest|stock|share market|crypto|legal advice|lawyer|court|evade|avoid tax|loophole)/.test(lo))return R(`I can't give legal or investment advice. A team member will follow up within one working day.`,`Main legal ya investment advice nahi de sakta. Hamari team ek working day mein aapse sampark karegi.`,{handoff:true,category:'out_of_scope'});
+ const d1=fmtD(dueFor('GSTR-1')),d3=fmtD(dueFor('GSTR-3B'));
+ if(/gstr[\s-]?3\s?b/.test(lo))return R(`GSTR-3B is due on the 20th of every month. Your next due date is ${d3}.`+retInfo(cid,'GSTR-3B'),`GSTR-3B har mahine ki 20 tarikh tak bharna hota hai. Agli due date ${d3} hai.`+retInfo(cid,'GSTR-3B',true),{category:'gst'});
+ if(/gstr[\s-]?1\b/.test(lo))return R(`GSTR-1 is due on the 11th of every month. Your next due date is ${d1}.`+retInfo(cid,'GSTR-1'),`GSTR-1 har mahine ki 11 tarikh tak bharna hota hai. Agli due date ${d1} hai.`+retInfo(cid,'GSTR-1',true),{category:'gst'});
+ if(/gst.*(due|date|deadline|last date)|(due|date|deadline).*gst/.test(lo))return R(`GSTR-1 is due on the 11th and GSTR-3B on the 20th of every month. Next dates: ${d1} and ${d3}.`,`GSTR-1 har mahine 11 tarikh ko aur GSTR-3B 20 tarikh ko bharna hota hai. Agli dates: ${d1} aur ${d3}.`,{category:'gst'});
+ if(/(income tax|\bitr\b|advance tax|\btds\b)/.test(lo))return R(`Income tax due dates depend on your category. For most non-audit individuals the ITR is due on 31 July, and advance tax falls on 15 Jun, 15 Sep, 15 Dec and 15 Mar. A team member will confirm what applies to you.`,`Income tax due dates aapki category par depend karti hain. Zyadatar non-audit individuals ka ITR 31 July tak hota hai, aur advance tax 15 Jun, 15 Sep, 15 Dec aur 15 Mar ko. Team aapke liye confirm karegi.`,{category:'tax'});
+ if(/(document|docs\b|register|upload|bank statement|kagaz)/.test(lo))return R(`For GST filing we need your sales register, purchase register, credit notes and the monthly bank statement. Upload them here: ${S('upload_link')}`,`GST filing ke liye hamein sales register, purchase register, credit notes aur monthly bank statement chahiye. Yahan upload karein: ${S('upload_link')}`,{category:'documents'});
+ if(/(price|pricing|cost|fee|charges?|package|kitna|rate|how much)/.test(lo))return R(`Monthly bookkeeping packages start at Rs. 5,000. Final pricing depends on your transaction volume, and a team member can share an exact quote.`,`Monthly bookkeeping packages Rs. 5,000 se shuru hote hain. Final price aapke transactions par depend karta hai, exact quote team share karegi.`,{category:'pricing'});
+ if(/(payment link|pay link|how (do|can) i pay|pay (my|the) invoice|link bhejo|payment kaise)/.test(lo))return R(`You can pay your invoices securely here: ${S('pay_link')}`,`Aap apne invoices yahan se safely pay kar sakte hain: ${S('pay_link')}`,{category:'payment'});
+ if(/(service|what do you do|what do you offer|kya karte|kya services)/.test(lo))return R(`We offer monthly bookkeeping, GST filing, income tax returns, TDS compliance and payroll support.`,`Hum monthly bookkeeping, GST filing, income tax return, TDS compliance aur payroll support dete hain.`,{category:'services'});
+ if(/(speak to|talk to|call me|human|real person|team member|baat karni|partner se)/.test(lo))return R(`Sure, a team member will reach out within one working day.`,`Zaroor, hamari team ek working day mein aapse sampark karegi.`,{handoff:true,category:'handoff'});
+ if(/(thank|thanks|shukriya|dhanyavaad)/.test(lo))return R(`You're welcome! Anything else I can help with?`,`Aapka swagat hai! Aur kuch madad chahiye?`,{category:'thanks'});
+ if(/^(hi|hello|hey|hii|namaste|namaskar)\b/.test(lo))return R(`Hello! I'm the ${FIRM()} assistant. I can help with GST due dates, documents, invoice status and our services.`,`Namaste! Main ${FIRM()} ka assistant hoon. GST due dates, documents, invoice status aur hamari services mein madad kar sakta hoon.`,{category:'greeting'});
+ return R(`I'm not fully sure about that. A team member will follow up within one working day.`,`Mujhe iska pakka jawab nahi pata. Hamari team ek working day mein aapse sampark karegi.`,{handoff:true,category:'unknown'});
+}
+function voiceify(s){s=s.replace(/Rs\. /g,'rupees ').replace(/₹/g,'rupees ').replace(/GSTR-(\w+)/g,'GSTR $1').replace(/https?:\/\/\S+/g,'the link we will send on WhatsApp').replace(/[-*•]/g,' ');const p=s.match(/[^.!?]+[.!?]/g)||[s];return p.slice(0,2).join(' ').replace(/\s+/g,' ').trim();}
+
+/* ===== chat model ===== */
+let CHATS=[],chatSeq=1;
+function newChat(name,cid,channel){const ch={id:'ch'+(chatSeq++),name,cid,channel,status:'ai',unread:false,msgs:[],at:new Date()};CHATS.unshift(ch);return ch;}
+function chatMsg(ch,f,t,at,meta){const d=at||new Date();ch.msgs.push({f,t,at:d,meta:meta||null});ch.at=d;}
+function clientTurn(ch,text,at){chatMsg(ch,'client',text,at);const a=aiAnswer(text,{cid:ch.cid,channel:ch.channel});let reply=a.reply;if(ch.channel==='voice')reply=voiceify(reply);chatMsg(ch,'ai',reply,at?new Date(at.getTime()+4000):null,{lang:a.lang,tool:a.tool,category:a.category});ch.status=a.handoff?'handoff':'ai';if(a.handoff)addTask({type:'chat_followup',owner:'Team',title:`Follow up with ${ch.name}`,detail:`Asked on ${CH_LABEL[ch.channel]}: “${text}”`,ref:ch.id,silent:!!at});return a;}
+
+/* ===== seed data ===== */
+function seedAll(){
+ const q=(name,channel,text,h)=>{const c=cliByName(name);const ch=newChat(name,c?c.id:null,channel);clientTurn(ch,text,ago(h));ch.unread=false;return ch;};
+ q('Sharma Traders Pvt Ltd','web','What is the due date for GSTR-3B?',3);
+ q('Mehta Textiles','whatsapp','Mera GSTR-1 kab bharna hai?',5);
+ q('Kapoor Logistics','voice','Invoice INV-1003 ka status batao',7);
+ q('Iyer Pharma','web','What documents do you need for GST filing?',26);
+ const v=q('Unknown visitor','web','Can you advise me on mutual fund investments?',2);v.unread=true;
+ q('Singh Auto Components','whatsapp','Payment link bhejo',30);
+ q('Reddy Constructions','whatsapp','How much does bookkeeping cost?',52);
+ q('Nair Spices','voice','Can you tell me the status of INV-1002?',72);
+ /* communications history */
+ const inv=id=>invBy(id),at=h=>({at:ago(h)});
+ [['INV-1002',96],['INV-'+ymd(addD(NOW,-2))+'-002',48],['INV-1008',140]].forEach(([id,h])=>{const i=inv(id);if(i){const c=cli(i.c),e=mInvEmail(i);send('email','invoice',c.name,e.subject,e.body,i.id,at(h));send('whatsapp','invoice',c.name,'',mInvWA(i),i.id,at(h));}});
+ [['INV-20260820-011','gentle',96,8],['INV-20260805-002','firm',216,20],['INV-20260710-007','final',408,33]].forEach(([id,st,h,d])=>{const i=inv(id),c=cli(i.c),e=mRemEmail(i,st,d);send('email','reminder_'+st,c.name,e.subject,e.body,i.id,Object.assign({cc:st==='final'?S('partner_email'):''},at(h)));send('whatsapp','reminder_'+st,c.name,'',mRemWA(i,st,d),i.id,at(h));send('voice','reminder_'+st,c.name,'Voice call · '+STAGES[st].l+' reminder',mRemVoice(i,st,d),i.id,at(h));});
+ const g1=RETURNS.find(r=>r.id==='GR-1');const ge=mGstSummary(g1);send('email','gst_summary',cli('c1').name,ge.subject,ge.body,g1.id,at(20));send('whatsapp','gst_summary',cli('c1').name,'',mGstSummaryWA(g1),g1.id,at(20));
+ const d2=DOCS.find(d=>d.id==='D-2'),de=mDocEmail(d2);send('email','docs',cli('c3').name,de.subject,de.body,d2.id,at(96));send('whatsapp','docs',cli('c3').name,'',mDocWA(d2),d2.id,at(96));send('voice','docs',cli('c3').name,'Voice call · document reminder','AI voice agent (Hindi) calls Jignesh Patel about pending documents.',d2.id,at(96));
+ send('email','approval','Partner','Approval needed: INV-'+ymd(NOW)+'-001 for Sharma Traders Pvt Ltd','Invoice totals ₹88,500 (incl. GST ₹13,500). Please review and approve before it is sent to the client.','INV-'+ymd(NOW)+'-001',{internal:true,at:ago(1)});
+ /* tasks */
+ addTask({type:'approval',owner:'Partner',title:'Approve invoice INV-'+ymd(NOW)+'-001',detail:'Sharma Traders Pvt Ltd · ₹88,500 exceeds the ₹50,000 approval limit.',ref:'INV-'+ymd(NOW)+'-001',prio:'high',at:ago(1),silent:true});
+ addTask({type:'escalation',owner:'Partner',title:'Call Kapoor Logistics',detail:'INV-1003 · promised payment by Friday — confirm receipt.',ref:'INV-1003-old',prio:'normal',at:ago(72),silent:true});
+ closeTasks('escalation','INV-1003-old','Client promised payment on Friday');TASKS[0].doneAt=ago(48);
+ /* alerts, activity, runs */
+ [['Partner approval needed for INV-'+ymd(NOW)+'-001 (₹88,500)',1],['Unknown visitor asked an out-of-scope question — team follow-up needed',2],['Mehta Textiles reminded: GSTR-1 data still pending',5]].forEach(([t,h])=>NOTIFS.push({text:t,at:ago(h),read:false}));
+ [['var(--emerald)','<b>Reddy Constructions</b> paid INV-1004 — ₹73,160',ago(9*24)],['var(--violet)','GSTR-3B summary for <b>Sharma Traders</b> sent for approval',ago(20)],['var(--sky)','AI assistant answered <b>Iyer Pharma</b> on web chat',ago(26)],['var(--blue)','<b>INV-1008</b> pushed to Zoho Books and sent to Singh Auto Components',ago(140)],['var(--amber)','Document reminder #3 sent to <b>Patel Foods LLP</b>',ago(96)],['var(--rose)','<b>Verma Retail</b> final notice sent — 30 days overdue',ago(408)]].forEach(([c,t,at])=>ACT.push({c,t,at}));
+ ACT.sort((a,b)=>b.at-a.at);
+ [['support',2,'AI assistant handled 8 conversations (1 handed to team)'],['recovery',20,'Daily check: 3 reminders sent across email, WhatsApp and voice'],['docs',96,'Monday chase: 2 reminders sent, 0 team alerts'],['gst',200,'Monthly cycle: 2 summaries sent, 3 data requests'],['invoice',140,'INV-1008 raised, pushed to Zoho Books and sent']].forEach(([a,h,s])=>RUNLOG.push({a,at:ago(h),s,ok:true}));
+}
+</script>
+<script>
+/* ===== dashboard ===== */
+function renderDashboard(){
+ const od=INVOICES.filter(isOverdue),odSum=od.reduce((s,i)=>s+i.total,0),t=new Date();
+ const mInv=INVOICES.filter(i=>i.status!=='rejected'&&i.issued.getMonth()===t.getMonth()&&i.issued.getFullYear()===t.getFullYear());
+ const mSum=mInv.reduce((s,i)=>s+i.total,0),mPaid=INVOICES.filter(i=>i.paidOn&&i.paidOn.getMonth()===t.getMonth()&&i.paidOn.getFullYear()===t.getFullYear()).reduce((s,i)=>s+i.total,0);
+ const open=RETURNS.filter(r=>r.status!=='filed').length,docsP=DOCS.filter(d=>pendingItems(d).length).length;
+ const ai=CHATS.length?Math.round(CHATS.filter(c=>c.status!=='handoff').length/CHATS.length*100):100;
+ const k=[
+  {l:'Outstanding receivables',v:inr(outstanding()),d:od.length+' overdue',i:'wallet',c:'var(--brand)',down:od.length>0},
+  {l:'Overdue amount',v:inr(odSum),d:'recover',i:'alarm-clock',c:'var(--rose)',down:1},
+  {l:'Invoiced this month',v:inr(mSum),d:mInv.length+' invoices',i:'file-text',c:'var(--blue)'},
+  {l:'GST returns open',v:open,d:'this cycle',i:'landmark',c:'var(--violet)'},
+  {l:'Clients with pending docs',v:docsP,d:'chasing',i:'folder-down',c:'var(--amber)',down:docsP>2},
+  {l:'Chats resolved by AI',v:ai+'%',d:CHATS.length+' chats',i:'bot',c:'var(--sky)'},
+ ];
+ $('kpis').innerHTML=k.map(x=>`<div class="card kpi"><div class="k-delta ${x.down?'down':''}">${x.d}</div><div class="k-icon" style="background:${x.c}1a"><svg data-lucide="${x.i}" style="color:${x.c}"></svg></div><div class="k-val">${x.v}</div><div class="k-label">${x.l}</div></div>`).join('');
+ const c1=N('cut_gentle'),c2=N('cut_firm'),c3=N('cut_final'),b=[0,0,0,0,0];
+ INVOICES.filter(i=>i.status==='sent').forEach(i=>{if(!isOverdue(i))b[0]+=i.total;else{const d=daysOver(i);b[d<=c1?1:d<=c2?2:d<=c3?3:4]+=i.total;}});
+ mk('cAging',{type:'bar',data:{labels:['Not yet due',`1–${c1} days`,`${c1+1}–${c2} days`,`${c2+1}–${c3} days`,`${c3}+ days`],datasets:[{data:b,backgroundColor:['#0f766e','#0284c7','#d97706','#ea580c','#e11d48'],borderRadius:6,maxBarThickness:46}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+inr(c.raw)}}},scales:{x:{ticks:tick,grid:{display:false}},y:{ticks:{...tick,callback:v=>'₹'+(v/1000)+'K'},grid:{color:'#ecf1f2'}}}}});
+ const lab=[];for(let i=5;i>=0;i--)lab.push(new Date(t.getFullYear(),t.getMonth()-i,1).toLocaleDateString('en-IN',{month:'short'}));
+ mk('cTrend',{type:'bar',data:{labels:lab,datasets:[{label:'Invoiced (₹K)',data:[412,455,430,498,521,Math.round(mSum/1000)],backgroundColor:'rgba(15,118,110,.8)',borderRadius:5,maxBarThickness:24},{label:'Collected (₹K)',data:[380,421,415,466,490,Math.round(mPaid/1000)],backgroundColor:'rgba(3,105,161,.75)',borderRadius:5,maxBarThickness:24}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#55656f',font:{size:10.5},boxWidth:10}}},scales:{x:{ticks:tick,grid:{display:false}},y:{ticks:tick,grid:{color:'#ecf1f2'}}}}});
+ const dl=[['GSTR-1 filing',dueFor('GSTR-1'),RETURNS.filter(r=>r.type==='GSTR-1'&&r.status==='data_pending').length+' clients still to send data'],['GSTR-3B filing',dueFor('GSTR-3B'),RETURNS.filter(r=>r.type==='GSTR-3B'&&r.status!=='filed').length+' returns not yet filed'],['TDS deposit',nextDue(7),'Deposit for last month’s deductions']].sort((a,b)=>a[1]-b[1]);
+ $('dDead').innerHTML=dl.map(x=>{const n=Math.ceil((x[1]-Date.now())/DAY);return `<div class="mini-row"><div class="avatar" style="background:var(--brand-soft);color:var(--brand)"><svg data-lucide="calendar" style="width:15px;height:15px"></svg></div><div class="m-main"><div class="m-name">${x[0]} · ${fmtD(x[1])}</div><div class="m-sub">${x[2]}</div></div><span class="pill ${n<=3?'p-rose':n<=7?'p-amber':'p-emerald'}">${n}d left</span></div>`;}).join('');
+ const ot=TASKS.filter(x=>x.status==='open').slice(0,4);
+ $('dAttn').innerHTML=ot.map(x=>{const m=TASK_META[x.type];return `<div class="mini-row"><div class="avatar" style="background:${m.bg};color:${m.c}"><svg data-lucide="${m.ic}" style="width:15px;height:15px"></svg></div><div class="m-main"><div class="m-name">${esc(x.title)}</div><div class="m-sub">${esc(x.detail)}</div></div><div class="act" onclick="App.go('tasks')"><svg data-lucide="arrow-right"></svg></div></div>`;}).join('')||'<div class="empty" style="padding:18px 0">Nothing needs attention</div>';
+ $('dSched').innerHTML=AUTOS.filter(a=>a.next).map(a=>`<div class="mini-row"><div class="avatar" style="background:${a.color}1a;color:${a.color}"><svg data-lucide="${a.icon}" style="width:15px;height:15px"></svg></div><div class="m-main"><div class="m-name">${a.name}</div><div class="m-sub">${a.on?'Next: '+fmtD(a.next())+' · '+a.sched:'Paused'}</div></div><span class="pill ${a.on?'p-emerald':'p-gray'}">${a.on?'On':'Paused'}</span></div>`).join('');
+ $('dAct').innerHTML=ACT.slice(0,6).map(a=>`<div class="act-item"><div class="act-dot" style="background:${a.c}"></div><div><div class="a-text">${a.t}</div><div class="a-time">${rel(a.at)}</div></div></div>`).join('');
+ const worst=od.slice().sort((a,b)=>daysOver(b)-daysOver(a))[0];
+ const ins=[['alarm-clock','var(--rose)',`${od.length} invoices overdue (${inr(odSum)})`,worst?`${cli(worst.c).name} is the highest risk — ${daysOver(worst)} days overdue on ${worst.id}.`:'No overdue invoices.'],['landmark','var(--violet)',`${RETURNS.filter(r=>r.status==='data_pending').length} returns waiting on client data`,'Run the monthly cycle to request registers by email, WhatsApp and voice.'],['bot','var(--sky)',`AI assistant resolved ${ai}% of chats`,'Questions on GST dates, documents and invoice status are answered instantly in Hindi, English or Hinglish.'],['shield-check','var(--emerald)','High-value invoices are protected',`Anything above ${inr(N('approval_threshold'))} waits for partner approval before it reaches a client.`]];
+ $('dIns').innerHTML=ins.map(i=>`<div class="insight"><div class="i-ic" style="background:${i[1]}1a"><svg data-lucide="${i[0]}" style="color:${i[1]}"></svg></div><div><div class="i-title">${i[2]}</div><div class="i-text">${i[3]}</div></div></div>`).join('');
+}
+
+/* ===== clients ===== */
+function clientOutstanding(id){return INVOICES.filter(i=>i.c===id&&i.status==='sent').reduce((s,i)=>s+i.total,0);}
+const Clients={
+ render(){const q=$('cliSearch').value.trim().toLowerCase();
+  const rows=CLIENTS.filter(c=>!q||c.name.toLowerCase().includes(q)||c.gstin.toLowerCase().includes(q)||c.city.toLowerCase().includes(q));
+  $('cliBody').innerHTML=rows.map(c=>{const o=clientOutstanding(c.id),od=INVOICES.some(i=>i.c===c.id&&isOverdue(i)),r=RETURNS.filter(x=>x.c===c.id).pop(),dp=DOCS.filter(d=>d.c===c.id&&pendingItems(d).length).length;
+   return `<tr><td><div class="name-cell"><div class="avatar">${ini(c.name)}</div><div><div class="cell-name">${esc(c.name)}</div><div class="cell-sub">${esc(c.contact)} · ${esc(c.phone)}</div></div></div></td><td style="font-family:Consolas,monospace;font-size:12px">${esc(c.gstin)}</td><td>${esc(c.city)}</td><td>${esc(c.plan)}</td>
+   <td class="num"><b style="color:${od?'var(--rose)':'inherit'}">${inr(o)}</b></td><td>${r?`<span class="pill ${GST_STATUS[r.status][1]}">${r.type} · ${GST_STATUS[r.status][0]}</span>`:'<span class="pill p-gray">—</span>'}</td><td>${dp?'<span class="pill p-amber">'+dp+' pending</span>':'<span class="pill p-emerald">Complete</span>'}</td>
+   <td><div class="actions"><div class="act" onclick="Clients.view('${c.id}')" title="View"><svg data-lucide="eye"></svg></div><div class="act" onclick="Invoices.openNew('${c.id}')" title="New invoice"><svg data-lucide="file-plus"></svg></div><div class="act" onclick="Support.openNew('${c.id}')" title="Test chat"><svg data-lucide="message-circle"></svg></div></div></td></tr>`;}).join('')||'<tr><td colspan="8"><div class="empty"><svg data-lucide="search-x"></svg><div>No clients match</div></div></td></tr>';
+  lucide.createIcons();},
+ view(id){const c=cli(id),inv=INVOICES.filter(i=>i.c===id).slice(0,6),ret=RETURNS.filter(r=>r.c===id),dc=DOCS.filter(d=>d.c===id&&pendingItems(d).length),ch=CHATS.filter(x=>x.cid===id).length;
+  App.modal(esc(c.name),`<div class="dr"><span class="l">GSTIN</span><span class="v" style="font-family:Consolas,monospace">${esc(c.gstin)}</span></div><div class="dr"><span class="l">Contact</span><span class="v">${esc(c.contact)} · ${esc(c.phone)}</span></div><div class="dr"><span class="l">Email</span><span class="v">${esc(c.email)}</span></div><div class="dr"><span class="l">City</span><span class="v">${esc(c.city)}</span></div><div class="dr"><span class="l">Plan</span><span class="v">${esc(c.plan)} · ${inr(c.fee)}/mo</span></div><div class="dr"><span class="l">Outstanding</span><span class="v">${inr(clientOutstanding(id))}</span></div><div class="dr"><span class="l">Support chats</span><span class="v">${ch}</span></div>
+  <div style="margin:14px 0 6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint)">Recent invoices</div>${inv.map(i=>`<div class="dr"><span class="l">${i.id}</span><span class="v">${inr(i.total)} ${statusPill(i)}</span></div>`).join('')||'<div class="cell-sub">No invoices yet</div>'}
+  <div style="margin:14px 0 6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint)">GST returns</div>${ret.map(r=>`<div class="dr"><span class="l">${r.type} · ${r.period}</span><span class="v"><span class="pill ${GST_STATUS[r.status][1]}">${GST_STATUS[r.status][0]}</span></span></div>`).join('')||'<div class="cell-sub">No returns this cycle</div>'}
+  ${dc.length?`<div style="margin:14px 0 6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint)">Missing documents</div>${dc.map(d=>`<div class="dr"><span class="l">Pending</span><span class="v" style="text-align:left;flex:1;font-weight:500">${pendingItems(d).map(i=>esc(i.n)).join(', ')}</span></div>`).join('')}`:''}`,
+  `<button class="btn btn-ghost" onclick="App.close()">Close</button><button class="btn btn-primary" onclick="App.close();Invoices.openNew('${id}')"><svg data-lucide="file-plus"></svg>New invoice</button>`);},
+ openAdd(){App.modal('Add Client',`<div class="form-grid"><div class="ff"><label>Client name *</label><input id="nName" placeholder="e.g. Desai Exports Pvt Ltd"></div><div class="ff"><label>GSTIN</label><input id="nGstin" placeholder="15-character GSTIN" maxlength="15"></div><div class="ff"><label>Contact person</label><input id="nContact"></div><div class="ff"><label>City</label><input id="nCity"></div><div class="ff"><label>Email</label><input id="nEmail" type="email"></div><div class="ff"><label>Phone</label><input id="nPhone" placeholder="+91…"></div><div class="ff"><label>Plan</label><select id="nPlan"><option>Starter Bookkeeping</option><option>Bookkeeping + GST</option><option>Bookkeeping + GST + Payroll</option><option>Full Compliance</option></select></div><div class="ff"><label>Monthly fee (₹)</label><input id="nFee" type="number" placeholder="25000"></div></div>`,`<button class="btn btn-ghost" onclick="App.close()">Cancel</button><button class="btn btn-primary" onclick="Clients.add()"><svg data-lucide="check"></svg>Add client</button>`);},
+ add(){const name=$('nName').value.trim(),g=$('nGstin').value.trim().toUpperCase();if(!name){App.toast('Enter the client name','alert-triangle');return;}if(g&&!/^[0-9A-Z]{15}$/.test(g)){App.toast('GSTIN must be 15 letters/digits','alert-triangle');return;}if(CLIENTS.some(c=>c.name.toLowerCase()===name.toLowerCase())){App.toast('A client with this name already exists','alert-triangle');return;}
+  const id='c'+(CLIENTS.length+1+Math.floor(Math.random()*90));CLIENTS.unshift({id,name,gstin:g||'—',contact:$('nContact').value.trim()||'—',email:$('nEmail').value.trim()||'—',phone:$('nPhone').value.trim()||'—',city:$('nCity').value.trim()||'—',plan:$('nPlan').value,fee:Number($('nFee').value)||0});
+  App.close();App.log('var(--brand)',`New client <b>${esc(name)}</b> onboarded`);this.render();App.toast(`${name} added`,'user-plus');}
+};
+
+/* ===== invoices ===== */
+const Invoices={tab:'all',
+ setTab(t){this.tab=t;this.render();},
+ filtered(){const q=$('invSearch').value.trim().toLowerCase();return INVOICES.filter(i=>{const t=this.tab;if(t==='awaiting'&&i.status!=='awaiting_approval')return false;if(t==='sent'&&!(i.status==='sent'&&!isOverdue(i)))return false;if(t==='overdue'&&!isOverdue(i))return false;if(t==='paid'&&i.status!=='paid')return false;return!q||i.id.toLowerCase().includes(q)||cli(i.c).name.toLowerCase().includes(q)||i.desc.toLowerCase().includes(q);});},
+ render(){const cnt={all:INVOICES.length,awaiting:INVOICES.filter(i=>i.status==='awaiting_approval').length,sent:INVOICES.filter(i=>i.status==='sent'&&!isOverdue(i)).length,overdue:INVOICES.filter(isOverdue).length,paid:INVOICES.filter(i=>i.status==='paid').length};
+  const labs={all:'All',awaiting:'Awaiting approval',sent:'Sent',overdue:'Overdue',paid:'Paid'};
+  $('invSeg').innerHTML=Object.keys(labs).map(k=>`<button class="${this.tab===k?'on':''}" onclick="Invoices.setTab('${k}')">${labs[k]} (${cnt[k]})</button>`).join('');
+  $('invBody').innerHTML=this.filtered().map(i=>{const c=cli(i.c);return `<tr><td><div class="cell-name">${i.id}</div><div class="cell-sub" style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${esc(i.desc)}</div></td><td>${esc(c.name)}</td><td class="num">${inr(i.amount)}</td><td class="num">${inr(i.gstAmt)} <span class="cell-sub">(${i.gst}%)</span></td><td class="num"><b>${inr(i.total)}</b></td><td>${fmtDS(i.issued)}</td><td>${fmtDS(i.due)}</td><td>${statusPill(i)}</td><td>${i.synced?`<span class="pill p-gray" title="Synced to ${esc(S('acc_software'))}"><svg data-lucide="check"></svg>${esc(S('acc_software'))}</span>`:''}</td>
+   <td><div class="actions"><div class="act" onclick="Invoices.view('${i.id}')" title="View"><svg data-lucide="eye"></svg></div>${i.status==='awaiting_approval'?`<div class="act" onclick="Invoices.approve('${i.id}')" title="Approve & send"><svg data-lucide="check"></svg></div><div class="act" onclick="Invoices.reject('${i.id}')" title="Reject"><svg data-lucide="x"></svg></div>`:''}${i.status==='sent'?`<div class="act" onclick="Invoices.pay('${i.id}')" title="Mark paid"><svg data-lucide="badge-indian-rupee"></svg></div>`:''}${isOverdue(i)?`<div class="act" onclick="Invoices.remind('${i.id}')" title="Send reminder now"><svg data-lucide="bell-ring"></svg></div>`:''}</div></td></tr>`;}).join('')||'<tr><td colspan="10"><div class="empty"><svg data-lucide="file-x"></svg><div>No invoices in this view</div></div></td></tr>';
+  lucide.createIcons();},
+ approve(id){const i=invBy(id);approveInvoice(i);App.refresh();App.toast(`${i.id} approved and sent to ${cli(i.c).name}`,'send');},
+ reject(id){const i=invBy(id);rejectInvoice(i);App.refresh();App.toast(`${i.id} rejected`,'x-circle');},
+ pay(id){const i=invBy(id);markPaid(i);App.refresh();App.toast(`${i.id} marked as paid`,'badge-check');},
+ remind(id){const i=invBy(id),r=remindInvoice(i);App.refresh();App.toast(r==='escalated'?`Over ${N('cut_final')} days — escalated to the partner`:`${STAGES[i.lastStage].l} reminder sent by email, WhatsApp and voice`,r==='escalated'?'phone-call':'bell-ring');},
+ view(id){const i=invBy(id),c=cli(i.c),e=mInvEmail(i),h=COMMS.filter(x=>x.ref===id).sort((a,b)=>b.at-a.at);
+  App.modal(i.id,`<div class="dr"><span class="l">Client</span><span class="v">${esc(c.name)}</span></div><div class="dr"><span class="l">Service</span><span class="v">${esc(i.desc)}</span></div><div class="dr"><span class="l">Amount</span><span class="v">${inr(i.amount)}</span></div><div class="dr"><span class="l">GST (${i.gst}%)</span><span class="v">${inr(i.gstAmt)}</span></div><div class="dr"><span class="l">Total payable</span><span class="v" style="color:var(--brand);font-size:14px">${inr(i.total)}</span></div><div class="dr"><span class="l">Issued / Due</span><span class="v">${fmtD(i.issued)} / ${fmtD(i.due)}</span></div><div class="dr"><span class="l">Status</span><span class="v">${statusPill(i)}</span></div><div class="dr"><span class="l">Accounting software</span><span class="v">Synced to ${esc(S('acc_software'))}</span></div>
+  <div style="margin:14px 0 4px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint)">Message sent to client</div><div class="preview"><b>${esc(e.subject)}</b>\n\n${esc(e.body)}</div>
+  <div style="margin:14px 0 4px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint)">Communication history</div><div class="tl">${h.map(x=>`<div class="tl-i"><b>${x.ch==='email'?'Email':x.ch==='whatsapp'?'WhatsApp':'Voice call'}</b> · ${esc(x.cat)} · ${x.status}<div class="tm">${esc(x.to)} · ${rel(x.at)}</div></div>`).join('')||'<div class="cell-sub">Nothing sent yet</div>'}</div>`,
+  `<button class="btn btn-ghost" onclick="App.close()">Close</button>${i.status==='awaiting_approval'?`<button class="btn btn-danger" onclick="App.close();Invoices.reject('${id}')">Reject</button><button class="btn btn-primary" onclick="App.close();Invoices.approve('${id}')"><svg data-lucide="send"></svg>Approve & send</button>`:i.status==='sent'?`<button class="btn btn-success" onclick="App.close();Invoices.pay('${id}')"><svg data-lucide="badge-check"></svg>Mark paid</button>`:''}`);},
+ openNew(cid){App.modal('New Invoice',`<div class="form-grid"><div class="ff"><label>Client *</label><select id="iC" onchange="Invoices.calc()">${CLIENTS.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div><div class="ff"><label>Due in (days)</label><input id="iDue" type="number" value="${N('default_due')}" oninput="Invoices.calc()"></div></div><div class="ff"><label>Service description *</label><input id="iDesc" placeholder="e.g. Monthly bookkeeping and GST filing - Oct 2026" value="Monthly bookkeeping and GST filing - ${new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'})}"></div><div class="form-grid"><div class="ff"><label>Amount before GST (₹) *</label><input id="iAmt" type="number" placeholder="75000" oninput="Invoices.calc()"></div><div class="ff"><label>GST rate</label><select id="iGst" onchange="Invoices.calc()">${[0,5,12,18,28].map(r=>`<option ${r==N('default_gst')?'selected':''}>${r}</option>`).join('')}</select></div></div><div id="iCalc"></div>`,`<button class="btn btn-ghost" onclick="App.close()">Cancel</button><button class="btn btn-primary" onclick="Invoices.create()"><svg data-lucide="check"></svg>Create invoice</button>`);this.calc();},
+ calc(){const a=Number($('iAmt').value)||0,g=Number($('iGst').value),gs=a*g/100,t=a+gs,d=Number($('iDue').value)||0,hi=t>N('approval_threshold');
+  $('iCalc').innerHTML=`<div class="calc"><div class="dr" style="border:none;padding:3px 0"><span class="l">GST (${g}%)</span><span class="v">${inr(gs)}</span></div><div class="dr" style="border:none;padding:3px 0"><span class="l">Total payable</span><span class="v" style="font-size:15px;color:var(--brand)">${inr(t)}</span></div><div class="dr" style="border:none;padding:3px 0"><span class="l">Due date</span><span class="v">${fmtD(addD(new Date(),d))}</span></div></div><div class="notice ${hi?'n-amber':'n-sky'}"><svg data-lucide="${hi?'shield-alert':'send'}"></svg><span>${hi?`Above ${inr(N('approval_threshold'))} — this invoice goes to the partner for approval before it is sent.`:'Within the approval limit — it will be emailed and sent on WhatsApp immediately.'}</span></div>`;lucide.createIcons();},
+ create(){const amt=Number($('iAmt').value),desc=$('iDesc').value.trim();if(!desc||!(amt>0)){App.toast('Enter a description and a valid amount','alert-triangle');return;}
+  const inv=createInvoice({c:$('iC').value,desc,amount:amt,gst:$('iGst').value,dueDays:Number($('iDue').value)||N('default_due')});App.close();this.tab='all';App.go('invoices');
+  App.toast(inv.status==='awaiting_approval'?`${inv.id} created — sent to partner for approval`:`${inv.id} created — emailed and sent on WhatsApp`,inv.status==='awaiting_approval'?'shield-alert':'send');}
+};
+</script>
+<script>
+const autoOn=id=>AUTOS.find(a=>a.id===id).on;
+const SEC='margin:14px 0 4px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint)';
+
+/* ===== payment recovery ===== */
+function renderRecovery(){
+ const od=INVOICES.filter(isOverdue),c1=N('cut_gentle'),c2=N('cut_firm'),c3=N('cut_final');
+ const rng={gentle:`1–${c1} days`,firm:`${c1+1}–${c2} days`,final:`${c2+1}–${c3} days`,escalate:`${c3}+ days`};
+ const chans={gentle:['Email','WhatsApp','AI voice call'],firm:['Email','WhatsApp','AI voice call'],final:['Email + partner cc','WhatsApp','AI voice call'],escalate:['Partner alert','Call task']};
+ $('recLadder').innerHTML=['gentle','firm','final','escalate'].map(k=>{const L=od.filter(i=>stageOf(daysOver(i))===k),sum=L.reduce((s,i)=>s+i.total,0);return `<div class="card stage" style="border-top-color:${STAGES[k].c}"><div class="s-n" style="color:${STAGES[k].c}">${STAGES[k].l}</div><div class="s-v">${inr(sum)}</div><div class="s-d">${L.length} invoice${L.length===1?'':'s'} · ${rng[k]}</div><div class="chipline">${chans[k].map(x=>`<span class="chip on">${x}</span>`).join('')}</div></div>`;}).join('');
+ $('recBody').innerHTML=od.sort((a,b)=>daysOver(b)-daysOver(a)).map(i=>{const d=daysOver(i),st=stageOf(d),c=cli(i.c);return `<tr><td><div class="cell-name">${i.id}</div><div class="cell-sub">Due ${fmtDS(i.due)}</div></td><td>${esc(c.name)}<div class="cell-sub">${esc(c.contact)} · ${esc(c.phone)}</div></td><td class="num"><b>${inr(i.total)}</b></td><td><b>${d}</b> days</td><td><span class="pill ${STAGES[st].p}">${STAGES[st].l}</span></td>
+  <td>${i.lastReminderAt?`${rel(i.lastReminderAt)} <span class="cell-sub">· ${STAGES[i.lastStage].l}</span>`:'<span class="cell-sub">Not contacted yet</span>'}</td><td>${i.promise?`<span class="pill p-emerald">${fmtDS(i.promise)}</span>`:'<span class="cell-sub">—</span>'}</td>
+  <td><div class="actions"><div class="act" onclick="Recovery.preview('${i.id}')" title="Preview messages"><svg data-lucide="eye"></svg></div><div class="act" onclick="Invoices.remind('${i.id}')" title="Send now"><svg data-lucide="bell-ring"></svg></div><div class="act" onclick="Recovery.promise('${i.id}')" title="Log promise to pay"><svg data-lucide="calendar-check"></svg></div><div class="act" onclick="Invoices.pay('${i.id}')" title="Mark paid"><svg data-lucide="badge-indian-rupee"></svg></div></div></td></tr>`;}).join('')||'<tr><td colspan="8"><div class="empty"><svg data-lucide="party-popper"></svg><div>No overdue invoices — everything is collected</div></div></td></tr>';
+ lucide.createIcons();
+}
+const Recovery={
+ runDaily(){if(!autoOn('recovery')){App.toast('Payment Recovery is paused — enable it in Automations','alert-triangle');return;}const r=runRecovery(),s=`${r.list} overdue: ${r.sent} reminded, ${r.esc} escalated, ${r.skip} skipped (already contacted today)`;logRun('recovery',s);App.log('var(--orange)','Daily 10:00 check — '+esc(s));App.refresh();App.toast(s,'play-circle');},
+ preview(id){const i=invBy(id),d=daysOver(i),st=stageOf(d);if(st==='escalate'){App.modal('Escalation — '+i.id,`<div class="notice n-amber"><svg data-lucide="phone-call"></svg><span>Over ${N('cut_final')} days overdue. No client message is sent — the partner is alerted and asked to call personally.</span></div><div class="preview">${cli(i.c).name} has not paid ${i.id} (${inr(i.total)}) for ${d} days. Please call the client personally and decide on next steps.</div>`,`<button class="btn btn-primary" onclick="App.close()">Close</button>`);return;}
+  const e=mRemEmail(i,st,d);App.modal(`${STAGES[st].l} reminder — ${i.id}`,`<div style="${SEC}">Email${st==='final'?' (cc partner)':''}</div><div class="preview"><b>${esc(e.subject)}</b>\n\n${esc(e.body)}</div><div style="${SEC}">WhatsApp</div><div class="preview">${esc(mRemWA(i,st,d))}</div><div style="${SEC}">AI voice call (Hindi)</div><div class="preview">${esc(mRemVoice(i,st,d))}</div>`,`<button class="btn btn-ghost" onclick="App.close()">Close</button><button class="btn btn-primary" onclick="App.close();Invoices.remind('${id}')"><svg data-lucide="send"></svg>Send now</button>`);},
+ promise(id){const i=invBy(id);App.modal('Promise to pay — '+i.id,`<div class="ff"><label>${esc(cli(i.c).name)} promised to pay on</label><input id="pDate" type="date" value="${addD(new Date(),3).toISOString().slice(0,10)}"></div><div style="font-size:11.5px;color:var(--text-faint)">Logging a promise is a note for your team. Automated reminders continue unless you pause Payment Recovery.</div>`,`<button class="btn btn-ghost" onclick="App.close()">Cancel</button><button class="btn btn-primary" onclick="Recovery.savePromise('${id}')"><svg data-lucide="check"></svg>Save</button>`);},
+ savePromise(id){const i=invBy(id),v=$('pDate').value;if(!v){App.toast('Pick a date','alert-triangle');return;}i.promise=new Date(v+'T12:00:00');App.close();App.log('var(--emerald)',`<b>${esc(cli(i.c).name)}</b> promised to pay ${esc(i.id)} by ${fmtDS(i.promise)}`);renderRecovery();App.toast('Promise to pay recorded','calendar-check');}
+};
+
+/* ===== GST compliance ===== */
+const GST={tab:'all',
+ setTab(t){this.tab=t;renderGst();},
+ runCycle(){if(!autoOn('gst')){App.toast('GST Compliance is paused — enable it in Automations','alert-triangle');return;}const r=runGst(),s=`${r.req} data request${r.req===1?'':'s'} sent, ${r.sum} summar${r.sum===1?'y':'ies'} sent for approval, ${r.skip} skipped`;logRun('gst',s);App.log('var(--violet)','Monthly GST cycle — '+esc(s));App.refresh();App.toast(s,'play-circle');},
+ request(id){const r=RETURNS.find(x=>x.id===id);gstRequest(r);App.log('var(--amber)',`Data requested from <b>${esc(cli(r.c).name)}</b> for ${r.type}`);App.refresh();App.toast(`Data request sent to ${cli(r.c).name} (email, WhatsApp, voice)`,'send');},
+ send(id){const r=RETURNS.find(x=>x.id===id);gstSummary(r);App.log('var(--violet)',`${r.type} summary sent to <b>${esc(cli(r.c).name)}</b> for approval`);App.refresh();App.toast('Summary sent by email and WhatsApp — awaiting client YES','send');},
+ approve(id){const r=RETURNS.find(x=>x.id===id);r.status='approved';App.log('var(--emerald)',`<b>${esc(cli(r.c).name)}</b> replied YES — ${r.type} approved`);App.refresh();App.toast(`${cli(r.c).name} approved filing`,'check-circle');},
+ file(id){const r=RETURNS.find(x=>x.id===id);r.status='filed';App.log('var(--emerald)',`${r.type} for <b>${esc(cli(r.c).name)}</b> filed`);App.refresh();App.toast(`${r.type} filed for ${cli(r.c).name}`,'badge-check');},
+ enter(id){const r=RETURNS.find(x=>x.id===id);App.modal(`Enter data — ${r.type} ${r.period}`,`<div class="dr"><span class="l">Client</span><span class="v">${esc(cli(r.c).name)}</span></div><div class="form-grid" style="margin-top:12px"><div class="ff"><label>Output tax (₹)</label><input id="gOut" type="number" placeholder="245000"></div>${r.type==='GSTR-3B'?`<div class="ff"><label>Input tax credit (₹)</label><input id="gItc" type="number" placeholder="168000"></div>`:''}</div><div style="font-size:11.5px;color:var(--text-faint)">Net GST payable is calculated automatically from the sales and purchase registers received.</div>`,`<button class="btn btn-ghost" onclick="App.close()">Cancel</button><button class="btn btn-primary" onclick="GST.saveData('${id}')"><svg data-lucide="check"></svg>Save & compute</button>`);},
+ saveData(id){const r=RETURNS.find(x=>x.id===id),o=Number($('gOut').value),it=r.type==='GSTR-3B'?Number($('gItc').value):0;if(!(o>=0)||$('gOut').value===''||(r.type==='GSTR-3B'&&$('gItc').value==='')){App.toast('Enter the tax amounts','alert-triangle');return;}r.data=true;r.out=o;r.itc=it;r.status='ready';App.close();App.log('var(--sky)',`Data received from <b>${esc(cli(r.c).name)}</b> for ${r.type}`);App.refresh();App.toast('Data saved — summary is ready to send','calculator');},
+ view(id){const r=RETURNS.find(x=>x.id===id),n=netOf(r);App.modal(`${r.type} — ${esc(cli(r.c).name)}`,`<div class="dr"><span class="l">Period</span><span class="v">${r.period}</span></div><div class="dr"><span class="l">Due date</span><span class="v">${fmtD(r.due)}</span></div><div class="dr"><span class="l">Status</span><span class="v"><span class="pill ${GST_STATUS[r.status][1]}">${GST_STATUS[r.status][0]}</span></span></div>${r.data?`<div class="dr"><span class="l">Output tax</span><span class="v">${inr(r.out)}</span></div>${n!==null?`<div class="dr"><span class="l">Input tax credit</span><span class="v">${inr(r.itc)}</span></div><div class="dr"><span class="l">Net payable</span><span class="v" style="color:${n>=0?'var(--brand)':'var(--emerald)'}">${n>=0?inr(n):inr(-n)+' credit carried forward'}</span></div>`:''}<div style="${SEC}">Summary sent to client</div><div class="preview"><b>${esc(mGstSummary(r).subject)}</b>\n\n${esc(mGstSummary(r).body)}</div>`:`<div class="notice n-amber" style="margin-top:12px"><svg data-lucide="hourglass"></svg><span>Waiting for the client's sales and purchase registers.</span></div><div style="${SEC}">Data request</div><div class="preview"><b>${esc(mGstReqEmail(r).subject)}</b>\n\n${esc(mGstReqEmail(r).body)}</div>`}`,`<button class="btn btn-primary" onclick="App.close()">Close</button>`);}
+};
+function renderGst(){
+ const d1=dueFor('GSTR-1'),d3=dueFor('GSTR-3B'),left=d=>Math.ceil((d-Date.now())/DAY);
+ const cnt=s=>RETURNS.filter(r=>r.status===s).length;
+ $('gstCards').innerHTML=[['GSTR-1 due',fmtD(d1),left(d1)+' days left','calendar','var(--violet)'],['GSTR-3B due',fmtD(d3),left(d3)+' days left','calendar-check','var(--brand)'],['Awaiting client YES',cnt('awaiting_client'),'summaries sent','mail-check','var(--amber)'],['Filed this cycle',cnt('filed'),'of '+RETURNS.length+' returns','badge-check','var(--emerald)']].map(x=>`<div class="card mkpi" style="display:flex;gap:12px;align-items:center"><div class="k-icon" style="background:${x[4]}1a;margin:0"><svg data-lucide="${x[3]}" style="color:${x[4]}"></svg></div><div><div class="v">${x[1]}</div><div class="l">${x[0]} · ${x[2]}</div></div></div>`).join('');
+ const wd=RETURNS.filter(r=>r.type==='GSTR-3B'&&r.data);
+ mk('cGst',{type:'bar',data:{labels:wd.map(r=>cli(r.c).name.split(' ')[0]),datasets:[{label:'Output tax',data:wd.map(r=>r.out),backgroundColor:'rgba(15,118,110,.8)',borderRadius:5,maxBarThickness:26},{label:'Input credit',data:wd.map(r=>r.itc),backgroundColor:'rgba(124,58,237,.7)',borderRadius:5,maxBarThickness:26}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#55656f',font:{size:10.5},boxWidth:10}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+inr(c.raw)}}},scales:{x:{ticks:tick,grid:{display:false}},y:{ticks:{...tick,callback:v=>'₹'+(v/1000)+'K'},grid:{color:'#ecf1f2'}}}}});
+ const cols={data_pending:'#d97706',ready:'#0284c7',awaiting_client:'#7c3aed',approved:'#2563eb',filed:'#16a34a'};
+ $('gstPipe').innerHTML=Object.keys(GST_STATUS).map(k=>{const n=cnt(k),p=Math.round(n/RETURNS.length*100);return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:130px;font-size:12px;color:var(--text-dim)">${GST_STATUS[k][0]}</div><div style="flex:1;height:18px;background:#e9eff1;border-radius:6px;overflow:hidden"><div style="width:${Math.max(p,3)}%;height:100%;background:${cols[k]};border-radius:6px"></div></div><div style="width:24px;text-align:right;font-weight:700;font-size:12px">${n}</div></div>`;}).join('')+`<div class="notice n-sky" style="margin:6px 0 0"><svg data-lucide="info"></svg><span>Net GST payable = output tax − input tax credit. A negative result is carried forward as credit.</span></div>`;
+ $('gstSeg').innerHTML=[['all','All']].concat(Object.keys(GST_STATUS).map(k=>[k,GST_STATUS[k][0]])).map(([k,l])=>`<button class="${GST.tab===k?'on':''}" onclick="GST.setTab('${k}')">${l} (${k==='all'?RETURNS.length:cnt(k)})</button>`).join('');
+ $('gstBody').innerHTML=RETURNS.filter(r=>GST.tab==='all'||r.status===GST.tab).map(r=>{const c=cli(r.c),n=netOf(r);return `<tr><td><div class="cell-name">${esc(c.name)}</div><div class="cell-sub">${esc(c.gstin)}</div></td><td><span class="pill p-violet">${r.type}</span></td><td>${r.period}</td><td>${fmtDS(r.due)}</td><td>${r.data?'<span class="pill p-emerald">Received</span>':'<span class="pill p-amber">Pending</span>'}</td><td class="num">${r.data?inr(r.out):'—'}</td><td class="num">${r.data&&n!==null?inr(r.itc):'—'}</td><td class="num">${r.data?(n===null?'<span class="cell-sub">n/a</span>':n>=0?`<b>${inr(n)}</b>`:`<b style="color:var(--emerald)">${inr(-n)} credit</b>`):'—'}</td><td><span class="pill ${GST_STATUS[r.status][1]}">${GST_STATUS[r.status][0]}</span></td>
+  <td><div class="actions"><div class="act" onclick="GST.view('${r.id}')" title="View"><svg data-lucide="eye"></svg></div>${r.status==='data_pending'?`<div class="act" onclick="GST.request('${r.id}')" title="Request data"><svg data-lucide="send"></svg></div><div class="act" onclick="GST.enter('${r.id}')" title="Enter received data"><svg data-lucide="keyboard"></svg></div>`:''}${r.status==='ready'?`<div class="act" onclick="GST.send('${r.id}')" title="Send summary for approval"><svg data-lucide="mail-check"></svg></div>`:''}${r.status==='awaiting_client'?`<div class="act" onclick="GST.approve('${r.id}')" title="Client replied YES"><svg data-lucide="thumbs-up"></svg></div><div class="act" onclick="GST.send('${r.id}')" title="Resend summary"><svg data-lucide="refresh-cw"></svg></div>`:''}${r.status==='approved'?`<div class="act" onclick="GST.file('${r.id}')" title="Mark filed"><svg data-lucide="badge-check"></svg></div>`:''}</div></td></tr>`;}).join('')||'<tr><td colspan="10"><div class="empty"><svg data-lucide="inbox"></svg><div>No returns in this view</div></div></td></tr>';
+ lucide.createIcons();
+}
+
+/* ===== document collection ===== */
+const Docs={tab:'pending',
+ setTab(t){this.tab=t;renderDocs();},
+ state(d){const p=pendingItems(d).length;if(!p)return'complete';return d.reminders>=N('doc_limit')?'call':'pending';},
+ runChase(){if(!autoOn('docs')){App.toast('Document Collection is paused — enable it in Automations','alert-triangle');return;}const r=runDocs(),s=`${r.rem} reminder${r.rem===1?'':'s'} sent, ${r.alert} team call alert${r.alert===1?'':'s'}, ${r.skip} skipped`;logRun('docs',s);App.log('var(--amber)','Monday document chase — '+esc(s));App.refresh();App.toast(s,'play-circle');},
+ remind(id){const d=DOCS.find(x=>x.id===id);if(d.reminders>=N('doc_limit')){App.toast(`Already reminded ${d.reminders} times — alert the team to call instead`,'alert-triangle');return;}docRemind(d);App.log('var(--amber)',`Document reminder #${d.reminders} sent to <b>${esc(cli(d.c).name)}</b>`);App.refresh();App.toast(`Reminder #${d.reminders} sent by email, WhatsApp and voice`,'send');},
+ alert(id){const d=DOCS.find(x=>x.id===id),t=docAlert(d);App.refresh();App.toast(t?'Team asked to call the client':'A call task is already open for this client',t?'phone-outgoing':'info');},
+ toggle(id,i){const d=DOCS.find(x=>x.id===id);d.items[i].got=!d.items[i].got;if(!pendingItems(d).length){closeTasks('doc_call',id,'All documents received');App.log('var(--emerald)',`All documents received from <b>${esc(cli(d.c).name)}</b>`);App.toast(`All documents received from ${cli(d.c).name}`,'folder-check');}App.refresh();},
+ all(id){const d=DOCS.find(x=>x.id===id);d.items.forEach(i=>i.got=true);closeTasks('doc_call',id,'All documents received');App.log('var(--emerald)',`All documents received from <b>${esc(cli(d.c).name)}</b>`);App.refresh();App.toast('Marked all documents as received','folder-check');},
+ openRequest(){App.modal('Request Documents',`<div class="ff"><label>Client</label><select id="rC">${CLIENTS.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div class="ff"><label>Documents needed (comma separated)</label><input id="rD" placeholder="Bank statement (Oct), Purchase invoices (Oct)"></div><div style="font-size:11.5px;color:var(--text-faint)">The first reminder goes out immediately by email, WhatsApp and an AI voice call.</div>`,`<button class="btn btn-ghost" onclick="App.close()">Cancel</button><button class="btn btn-primary" onclick="Docs.request()"><svg data-lucide="send"></svg>Send request</button>`);},
+ request(){const items=$('rD').value.split(',').map(s=>s.trim()).filter(Boolean);if(!items.length){App.toast('List at least one document','alert-triangle');return;}const d={id:'D-'+(DOCS.length+1+Math.floor(Math.random()*90)),c:$('rC').value,items:items.map(n=>({n,got:false})),since:new Date(),reminders:0,lastReminder:null};DOCS.unshift(d);docRemind(d);App.close();App.log('var(--amber)',`Documents requested from <b>${esc(cli(d.c).name)}</b>`);this.tab='pending';App.refresh();App.toast('Request sent by email, WhatsApp and voice','send');}
+};
+function renderDocs(){
+ const lim=N('doc_limit'),pend=DOCS.filter(d=>pendingItems(d).length);
+ $('docKpis').innerHTML=[['Clients pending',pend.length,'folder-down','var(--amber)'],['Documents missing',pend.reduce((s,d)=>s+pendingItems(d).length,0),'file-warning','var(--rose)'],['Reminders sent',DOCS.reduce((s,d)=>s+d.reminders,0),'bell-ring','var(--sky)'],['Team call needed',DOCS.filter(d=>Docs.state(d)==='call').length,'phone-outgoing','var(--violet)']].map(x=>`<div class="card mkpi" style="display:flex;gap:12px;align-items:center"><div class="k-icon" style="background:${x[3]}1a;margin:0"><svg data-lucide="${x[2]}" style="color:${x[3]}"></svg></div><div><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div></div>`).join('');
+ const cnt={pending:DOCS.filter(d=>Docs.state(d)==='pending').length,call:DOCS.filter(d=>Docs.state(d)==='call').length,complete:DOCS.filter(d=>Docs.state(d)==='complete').length,all:DOCS.length},labs={pending:'Reminding',call:'Call needed',complete:'Complete',all:'All'};
+ $('docSeg').innerHTML=Object.keys(labs).map(k=>`<button class="${Docs.tab===k?'on':''}" onclick="Docs.setTab('${k}')">${labs[k]} (${cnt[k]})</button>`).join('')+'<button onclick="Docs.openRequest()" style="color:var(--brand)">+ Request documents</button>';
+ $('docBody').innerHTML=DOCS.filter(d=>Docs.tab==='all'||Docs.state(d)===Docs.tab).map(d=>{const c=cli(d.c),s=Docs.state(d),days=Math.max(0,Math.floor((Date.now()-d.since)/DAY));return `<tr><td><div class="cell-name">${esc(c.name)}</div><div class="cell-sub">${esc(c.contact)}</div></td><td style="white-space:normal;max-width:340px"><div class="chipline" style="margin:0">${d.items.map((it,i)=>`<span class="chip doc ${it.got?'got on':''}" onclick="Docs.toggle('${d.id}',${i})" title="Click to toggle"><svg data-lucide="${it.got?'check':'file'}"></svg>${esc(it.n)}</span>`).join('')}</div></td><td>${days} day${days===1?'':'s'}</td>
+  <td><span class="dots">${Array.from({length:lim},(_,i)=>`<i class="${i<d.reminders?(d.reminders>=lim?'hot':'on'):''}"></i>`).join('')}</span> <span class="cell-sub">${d.reminders}/${lim}</span></td><td>${s==='complete'?'<span class="pill p-emerald">Complete</span>':s==='call'?'<span class="pill p-rose">Call needed</span>':`<span class="pill p-amber">Reminder ${d.reminders+1} next</span>`}</td>
+  <td><div class="actions">${s==='pending'?`<div class="act" onclick="Docs.remind('${d.id}')" title="Send reminder"><svg data-lucide="bell-ring"></svg></div>`:''}${s==='call'?`<div class="act" onclick="Docs.alert('${d.id}')" title="Ask team to call"><svg data-lucide="phone-outgoing"></svg></div>`:''}${s!=='complete'?`<div class="act" onclick="Docs.all('${d.id}')" title="Mark all received"><svg data-lucide="check-check"></svg></div>`:''}</div></td></tr>`;}).join('')||'<tr><td colspan="6"><div class="empty"><svg data-lucide="folder-check"></svg><div>Nothing in this view</div></div></td></tr>';
+ lucide.createIcons();
+}
+</script>
+<script>
+/* ===== support desk ===== */
+const CH_STATUS={ai:['p-emerald','Resolved by AI'],handoff:['p-rose','Needs team'],closed:['p-blue','Closed by team']};
+const SAMPLES=['What is the due date for GSTR-3B?','Mera GSTR-1 kab bharna hai?','Status of INV-1003','What documents do you need?','How much does bookkeeping cost?','Payment link bhejo','Can you advise on mutual funds?','I want to speak to a partner'];
+const Support={sel:null,
+ filtered(){const f=$('sFilter').value;return CHATS.filter(c=>!f||c.status===f||c.channel===f).sort((a,b)=>b.at-a.at);},
+ render(){
+  const ai=CHATS.filter(c=>c.status==='ai').length,hf=CHATS.filter(c=>c.status==='handoff').length;
+  $('supKpis').innerHTML=[['Conversations',CHATS.length,'messages-square','var(--brand)'],['Resolved by AI',CHATS.length?Math.round((CHATS.length-hf)/CHATS.length*100)+'%':'—','bot','var(--emerald)'],['Needs team',hf,'hand-helping','var(--rose)'],['Avg first reply','2.1s','zap','var(--sky)']].map(x=>`<div class="card mkpi" style="display:flex;gap:12px;align-items:center"><div class="k-icon" style="background:${x[3]}1a;margin:0"><svg data-lucide="${x[2]}" style="color:${x[3]}"></svg></div><div><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div></div>`).join('');
+  const list=this.filtered();if(!this.sel||!CHATS.some(c=>c.id===this.sel))this.sel=list[0]?list[0].id:null;
+  $('sList').innerHTML=list.map(c=>{const last=c.msgs[c.msgs.length-1],s=CH_STATUS[c.status];return `<div class="c-item ${c.id===this.sel?'active':''}" onclick="Support.pick('${c.id}')"><div class="avatar">${ini(c.name)}</div><div class="c-meta"><div class="c-top"><span class="c-name">${esc(c.name)}</span><span class="c-time">${rel(c.at)}</span></div><div class="c-msg">${last?esc(last.t):''}</div><div class="c-tags"><span class="pill ${CH_PILL[c.channel]}"><svg data-lucide="${CH_ICON[c.channel]}"></svg>${CH_LABEL[c.channel]}</span><span class="pill ${s[0]}">${s[1]}</span></div></div>${c.unread?'<div class="unread"></div>':''}</div>`;}).join('')||'<div class="empty">No conversations</div>';
+  this.thread();lucide.createIcons();},
+ pick(id){this.sel=id;const c=CHATS.find(x=>x.id===id);c.unread=false;this.render();},
+ thread(){const c=CHATS.find(x=>x.id===this.sel);if(!c){$('sThread').innerHTML='<div class="empty" style="margin:auto"><svg data-lucide="messages-square"></svg><div>Select a conversation</div></div>';return;}
+  const s=CH_STATUS[c.status],lastAi=[...c.msgs].reverse().find(m=>m.f==='ai'),lang=lastAi&&lastAi.meta?lastAi.meta.lang:'en';
+  const ban=c.status==='handoff'?`<div class="banner b-rose"><svg data-lucide="hand-helping"></svg><div style="flex:1"><b>Handed to your team.</b> The assistant wasn't sure or the topic needs a person. A follow-up task was created (reply within one working day).</div><button class="btn btn-sm" onclick="Support.resolve('${c.id}')">Mark resolved</button></div>`:c.channel==='voice'?`<div class="banner b-sky"><svg data-lucide="phone"></svg><div>Voice call — replies are kept to one or two short sentences with no symbols, ready to be spoken.</div></div>`:'';
+  $('sThread').innerHTML=`<div class="t-head"><div class="avatar">${ini(c.name)}</div><div><div style="font-weight:800;font-size:13.5px">${esc(c.name)}</div><div style="font-size:11px;color:var(--text-faint)">${c.cid?esc(cli(c.cid).phone):'Not a registered client'}</div></div><div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><span class="pill ${CH_PILL[c.channel]}"><svg data-lucide="${CH_ICON[c.channel]}"></svg>${CH_LABEL[c.channel]}</span><span class="pill p-gray">${lang==='hi'?'Hindi / Hinglish':'English'}</span><span class="pill ${s[0]}">${s[1]}</span></div></div>${ban}
+  <div class="t-body" id="tBody">${c.msgs.map(m=>`<div class="msg ${m.f}">${esc(m.t)}<div class="m-meta"><span>${m.f==='client'?(c.channel==='voice'?'Caller':'Client'):m.f==='ai'?'AI assistant':'Team'}</span>${m.meta&&m.meta.tool?`<span class="pill p-violet" style="font-size:9.5px;padding:1px 6px">Used: ${esc(m.meta.tool)}</span>`:''}<span>${clock(m.at)}</span></div></div>`).join('')}<div class="typing" id="typing" style="display:none">AI assistant is typing…</div></div>
+  <div class="samples">${SAMPLES.map(x=>`<span class="sample" onclick="Support.use(this.textContent)">${esc(x)}</span>`).join('')}</div>
+  <div class="composer"><select class="filter" id="sAs"><option value="client">${c.channel==='voice'?'Caller says':'Client says (simulate)'}</option><option value="team">Reply as team</option></select><input id="sIn" placeholder="Type a message…" onkeydown="if(event.key==='Enter')Support.send()"><button class="btn btn-primary" onclick="Support.send()"><svg data-lucide="send"></svg></button></div>`;
+  const b=$('tBody');if(b)b.scrollTop=b.scrollHeight;},
+ use(t){const i=$('sIn');if(i){i.value=t;i.focus();}},
+ send(){const c=CHATS.find(x=>x.id===this.sel),i=$('sIn'),as=$('sAs').value;if(!i||!i.value.trim())return;const text=i.value.trim();
+  if(as==='team'){chatMsg(c,'team',text);c.status='closed';closeTasks('chat_followup',c.id,'Team replied');App.log('var(--sky)',`Team replied to <b>${esc(c.name)}</b> on ${CH_LABEL[c.channel]}`);App.refresh();App.toast('Reply sent — conversation closed','send');return;}
+  chatMsg(c,'client',text);this.render();const ty=$('typing');if(ty)ty.style.display='block';const bd=$('tBody');if(bd)bd.scrollTop=bd.scrollHeight;
+  setTimeout(()=>{const off=!AUTOS.find(x=>x.id==='support').on;const a=off?{handoff:true,lang:'en',tool:null,category:'paused'}:aiAnswer(text,{cid:c.cid,channel:c.channel});if(!off){let reply=a.reply;if(c.channel==='voice')reply=voiceify(reply);chatMsg(c,'ai',reply,null,{lang:a.lang,tool:a.tool,category:a.category});}c.status=a.handoff?'handoff':'ai';if(a.handoff){addTask({type:'chat_followup',owner:'Team',title:`Follow up with ${c.name}`,detail:`Asked on ${CH_LABEL[c.channel]}: “${text}”`,ref:c.id});App.log('var(--rose)',`<b>${esc(c.name)}</b> needs a team follow-up`);}else App.log('var(--sky)',`AI assistant answered <b>${esc(c.name)}</b> on ${CH_LABEL[c.channel]}`);App.refresh();},650);},
+ resolve(id){const c=CHATS.find(x=>x.id===id);c.status='closed';closeTasks('chat_followup',id,'Marked resolved');App.log('var(--emerald)',`Conversation with <b>${esc(c.name)}</b> resolved`);App.refresh();App.toast('Conversation marked resolved','check-circle');},
+ openNew(cid){App.modal('Test the AI Assistant',`<div class="form-grid"><div class="ff"><label>Channel</label><select id="nCh"><option value="web">Web chat</option><option value="whatsapp">WhatsApp</option><option value="voice">Voice call</option></select></div><div class="ff"><label>Who is asking?</label><select id="nCl"><option value="">Unknown visitor</option>${CLIENTS.map(c=>`<option value="${c.id}" ${c.id===cid?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div></div><div class="ff"><label>Question</label><input id="nQ" placeholder="Ask about GST dates, documents, invoice status…"></div><div class="chipline">${SAMPLES.slice(0,6).map(x=>`<span class="sample" onclick="document.getElementById('nQ').value=this.textContent">${esc(x)}</span>`).join('')}</div>`,`<button class="btn btn-ghost" onclick="App.close()">Cancel</button><button class="btn btn-primary" onclick="Support.startNew()"><svg data-lucide="send"></svg>Ask</button>`);},
+ startNew(){const q=$('nQ').value.trim();if(!q){App.toast('Type a question first','alert-triangle');return;}const cid=$('nCl').value,c=cid?cli(cid):null,ch=newChat(c?c.name:'Unknown visitor',cid||null,$('nCh').value);clientTurn(ch,q);ch.unread=false;this.sel=ch.id;App.close();$('sFilter').value='';App.log('var(--sky)',`AI assistant answered <b>${esc(ch.name)}</b> on ${CH_LABEL[ch.channel]}`);App.go('support');App.toast(ch.status==='handoff'?'Handed to team — task created':'AI assistant replied',ch.status==='handoff'?'hand-helping':'bot');}
+};
+
+/* ===== outreach log ===== */
+const OUT_PILL={Delivered:'p-emerald',Answered:'p-emerald','No answer':'p-gray',Voicemail:'p-amber',Internal:'p-violet'};
+const CH_NAME={email:'Email',whatsapp:'WhatsApp',voice:'Voice call'},CH_P={email:'p-blue',whatsapp:'p-emerald',voice:'p-violet'},CH_I={email:'mail',whatsapp:'message-circle',voice:'phone'};
+const Outreach={
+ render(){const q=$('outSearch').value.trim().toLowerCase(),ch=$('outChan').value,cat=$('outCat').value;
+  const all=COMMS.slice().sort((a,b)=>b.at-a.at),rows=all.filter(r=>(!ch||r.ch===ch)&&(!cat||r.cat===cat)&&(!q||r.to.toLowerCase().includes(q)||r.subject.toLowerCase().includes(q)||r.body.toLowerCase().includes(q)||r.ref.toLowerCase().includes(q)));
+  $('outKpis').innerHTML=[['Emails sent',COMMS.filter(r=>r.ch==='email'&&r.status!=='Internal').length,'mail','var(--blue)'],['WhatsApp messages',COMMS.filter(r=>r.ch==='whatsapp').length,'message-circle','var(--emerald)'],['AI voice calls',COMMS.filter(r=>r.ch==='voice').length+' · '+COMMS.filter(r=>r.ch==='voice'&&r.status==='Answered').length+' answered','phone','var(--violet)'],['Internal alerts',COMMS.filter(r=>r.status==='Internal').length,'bell','var(--amber)']].map(x=>`<div class="card mkpi" style="display:flex;gap:12px;align-items:center"><div class="k-icon" style="background:${x[3]}1a;margin:0"><svg data-lucide="${x[2]}" style="color:${x[3]}"></svg></div><div><div class="v" style="font-size:17px">${x[1]}</div><div class="l">${x[0]}</div></div></div>`).join('');
+  $('outBody').innerHTML=rows.slice(0,150).map(r=>`<tr><td>${fmtDS(r.at)} · ${clock(r.at)}<div class="cell-sub">${rel(r.at)}</div></td><td><span class="pill ${CH_P[r.ch]}"><svg data-lucide="${CH_I[r.ch]}"></svg>${CH_NAME[r.ch]}</span></td><td><span class="pill ${CAT_PILL[r.cat]||'p-gray'}">${r.cat}</span></td><td>${esc(r.to)}<div class="cell-sub">${esc(r.ref)}</div></td><td style="white-space:normal;max-width:300px"><div style="font-size:12.4px;font-weight:600">${esc(r.subject||r.body.slice(0,70))}</div></td><td><span class="pill ${OUT_PILL[r.status]}">${r.status}</span></td><td><div class="act" onclick="Outreach.view(${r.id})"><svg data-lucide="eye"></svg></div></td></tr>`).join('')||'<tr><td colspan="7"><div class="empty"><svg data-lucide="search-x"></svg><div>No messages match</div></div></td></tr>';
+  lucide.createIcons();},
+ view(id){const r=COMMS.find(x=>x.id===id);App.modal(CH_NAME[r.ch]+' — '+esc(r.to),`<div class="dr"><span class="l">Sent</span><span class="v">${fmtD(r.at)} ${clock(r.at)}</span></div><div class="dr"><span class="l">Category</span><span class="v">${r.cat}</span></div><div class="dr"><span class="l">Reference</span><span class="v">${esc(r.ref)||'—'}</span></div><div class="dr"><span class="l">Status</span><span class="v"><span class="pill ${OUT_PILL[r.status]}">${r.status}</span></span></div>${r.cc?`<div class="dr"><span class="l">Cc</span><span class="v">${esc(r.cc)}</span></div>`:''}<div style="${SEC}">${r.ch==='voice'?'Call script':'Message'}</div><div class="preview">${r.subject&&r.ch==='email'?'<b>'+esc(r.subject)+'</b>\n\n':''}${esc(r.body)}</div>`,`<button class="btn btn-primary" onclick="App.close()">Close</button>`);}
+};
+
+/* ===== team tasks ===== */
+const Tasks={tab:'open',
+ setTab(t){this.tab=t;this.render();},
+ render(){const c={open:TASKS.filter(t=>t.status==='open').length,partner:TASKS.filter(t=>t.status==='open'&&t.owner==='Partner').length,team:TASKS.filter(t=>t.status==='open'&&t.owner==='Team').length,done:TASKS.filter(t=>t.status==='done').length},labs={open:'Open',partner:'Partner',team:'Team',done:'Done'};
+  $('taskSeg').innerHTML=Object.keys(labs).map(k=>`<button class="${this.tab===k?'on':''}" onclick="Tasks.setTab('${k}')">${labs[k]} (${c[k]})</button>`).join('');
+  const list=TASKS.filter(t=>this.tab==='done'?t.status==='done':t.status==='open'&&(this.tab==='open'||t.owner.toLowerCase()===this.tab));
+  $('taskList').innerHTML=list.map(t=>{const m=TASK_META[t.type],inv=t.type==='approval'||t.type==='escalation'?invBy(t.ref):null;
+   const acts=t.status==='done'?`<span class="pill p-emerald">Done ${rel(t.doneAt)}</span>`:t.type==='approval'?`<button class="btn btn-sm btn-danger" onclick="Tasks.reject('${t.id}')"><svg data-lucide="x"></svg>Reject</button><button class="btn btn-sm btn-primary" onclick="Tasks.approve('${t.id}')"><svg data-lucide="send"></svg>Approve & send</button>`:t.type==='escalation'?`<button class="btn btn-sm" onclick="Tasks.logCall('${t.id}')"><svg data-lucide="phone-call"></svg>Log call</button>${inv?`<button class="btn btn-sm btn-success" onclick="Tasks.paid('${t.id}')"><svg data-lucide="badge-check"></svg>Mark paid</button>`:''}`:t.type==='doc_call'?`<button class="btn btn-sm" onclick="Tasks.logCall('${t.id}')"><svg data-lucide="phone-call"></svg>Log call</button><button class="btn btn-sm btn-success" onclick="Tasks.docsIn('${t.id}')"><svg data-lucide="folder-check"></svg>Documents received</button>`:`<button class="btn btn-sm" onclick="Tasks.openChat('${t.id}')"><svg data-lucide="message-circle"></svg>Open chat</button><button class="btn btn-sm btn-success" onclick="Tasks.complete('${t.id}')"><svg data-lucide="check"></svg>Resolved</button>`;
+   return `<div class="card task ${t.status==='done'?'done':''}"><div class="t-ic" style="background:${m.bg}"><svg data-lucide="${m.ic}" style="color:${m.c}"></svg></div><div class="t-main"><div class="t-title">${esc(t.title)}</div><div class="t-detail">${esc(t.detail)}${t.note?`<br><i>Note: ${esc(t.note)}</i>`:''}</div><div class="t-meta"><span class="pill p-gray">${t.owner}</span><span class="pill ${m.l==='Approval'?'p-violet':'p-gray'}">${m.l}</span>${t.prio==='high'?'<span class="pill p-rose">High priority</span>':''}<span class="cell-sub">Created ${rel(t.at)}</span></div></div><div class="t-act">${acts}</div></div>`;}).join('')||'<div class="empty"><svg data-lucide="party-popper"></svg><div>Nothing here — you are all caught up</div></div>';
+  lucide.createIcons();},
+ get(id){return TASKS.find(t=>t.id===id);},
+ complete(id,note){const t=this.get(id);t.status='done';t.doneAt=new Date();if(note)t.note=note;App.refresh();App.toast('Task completed','check-circle');},
+ approve(id){const t=this.get(id),i=invBy(t.ref);if(i&&i.status==='awaiting_approval')approveInvoice(i);else{t.status='done';t.doneAt=new Date();}App.refresh();App.toast(`${t.ref} approved and sent`,'send');},
+ reject(id){const t=this.get(id),i=invBy(t.ref);if(i&&i.status==='awaiting_approval')rejectInvoice(i);else{t.status='done';t.doneAt=new Date();}App.refresh();App.toast(`${t.ref} rejected`,'x-circle');},
+ paid(id){const t=this.get(id),i=invBy(t.ref);if(i)markPaid(i);t.status='done';t.doneAt=new Date();App.refresh();App.toast('Invoice marked as paid','badge-check');},
+ docsIn(id){const t=this.get(id),d=DOCS.find(x=>x.id===t.ref);if(d)d.items.forEach(i=>i.got=true);closeTasks('doc_call',t.ref,'Documents received');App.refresh();App.toast('Documents received — checklist complete','folder-check');},
+ openChat(id){const t=this.get(id);Support.sel=t.ref;$('sFilter').value='';App.go('support');},
+ logCall(id){const t=this.get(id),isEsc=t.type==='escalation';App.modal('Log call — '+esc(t.title),`<div class="ff"><label>Outcome</label><select id="oc">${isEsc?'<option value="promise">Client promised payment</option><option value="time">Needs more time</option><option value="dispute">Disputes the invoice</option><option value="none">No answer</option>':'<option value="upload">Will upload soon</option><option value="done">Documents received</option><option value="none">No answer</option>'}</select></div><div class="ff"><label>Follow-up / promised date</label><input id="od" type="date" value="${addD(new Date(),3).toISOString().slice(0,10)}"></div><div class="ff"><label>Notes</label><input id="on" placeholder="Short note for the team"></div>`,`<button class="btn btn-ghost" onclick="App.close()">Cancel</button><button class="btn btn-primary" onclick="Tasks.saveCall('${id}')"><svg data-lucide="check"></svg>Save</button>`);},
+ saveCall(id){const t=this.get(id),oc=$('oc').value,dt=$('od').value,n=$('on').value.trim();t.note=n||t.note;
+  if(oc==='none'){t.note=(n?n+' · ':'')+'No answer — try again';App.close();App.refresh();App.toast('Logged: no answer, task stays open','phone-missed');return;}
+  if(t.type==='escalation'){const i=invBy(t.ref);if(i&&oc==='promise'&&dt)i.promise=new Date(dt+'T12:00:00');t.note=(oc==='promise'?`Promised payment by ${dt}`:oc==='dispute'?'Client disputes the invoice':'Needs more time')+(n?' · '+n:'');}
+  else{const d=DOCS.find(x=>x.id===t.ref);if(oc==='done'&&d)d.items.forEach(i=>i.got=true);t.note=(oc==='done'?'Documents received':`Client will upload by ${dt}`)+(n?' · '+n:'');}
+  t.status='done';t.doneAt=new Date();App.log('var(--emerald)',`Call logged: <b>${esc(t.title)}</b>`);App.close();App.refresh();App.toast('Call logged and task completed','phone-call');}
+};
+</script>
+<script>
+/* ===== automations ===== */
+const nextDaily=()=>{const d=new Date();d.setHours(10,0,0,0);if(d<=new Date())d.setDate(d.getDate()+1);return d;};
+const nextMonthly=()=>{const t=new Date();let d=new Date(t.getFullYear(),t.getMonth(),1,9);if(d<=t)d=new Date(t.getFullYear(),t.getMonth()+1,1,9);return d;};
+const nextMonday=()=>{const d=new Date();d.setHours(10,0,0,0);d.setDate(d.getDate()+((8-d.getDay())%7||7));if(d<=new Date())d.setDate(d.getDate()+7);return d;};
+const AUTOS=[
+ {id:'invoice',name:'Invoice Automation',icon:'file-text',color:'#2563eb',sched:'Instant — when an invoice is raised',on:true,runs:48,last:ago(140),next:null,tab:'invoices',cta:'Raise invoice',act:()=>Invoices.openNew(),chans:['Email','WhatsApp','Accounting sync'],steps:()=>['GST and total are calculated and the invoice is pushed to '+S('acc_software'),`Above ${inr(N('approval_threshold'))}: partner approval is requested first`,'Otherwise: sent to the client by email and WhatsApp','Logged in the invoice register']},
+ {id:'recovery',name:'Payment Recovery',icon:'hand-coins',color:'#ea580c',sched:'Every day at 10:00',on:true,runs:112,last:ago(20),next:nextDaily,tab:'recovery',cta:'Run daily check',act:()=>Recovery.runDaily(),chans:['Email','WhatsApp','AI voice call','Partner alert'],steps:()=>[`Overdue invoices are staged by age: 1–${N('cut_gentle')}, ${N('cut_gentle')+1}–${N('cut_firm')}, ${N('cut_firm')+1}–${N('cut_final')} days`,'Each client-facing stage sends email, WhatsApp and an AI voice call',`Final notice copies the partner; over ${N('cut_final')} days the partner is asked to call`]},
+ {id:'gst',name:'GST Compliance',icon:'landmark',color:'#7c3aed',sched:'1st of every month, 09:00',on:true,runs:14,last:ago(200),next:nextMonthly,tab:'gst',cta:'Run monthly cycle',act:()=>GST.runCycle(),chans:['Email','WhatsApp','AI voice call'],steps:()=>['Each client return (GSTR-1 / GSTR-3B) is checked for data','Data received: net GST payable is computed and the summary goes out for approval (reply YES)','Data missing: client is asked for registers by email, WhatsApp and voice']},
+ {id:'docs',name:'Document Collection',icon:'folder-down',color:'#d97706',sched:'Every Monday, 10:00',on:true,runs:36,last:ago(96),next:nextMonday,tab:'documents',cta:'Run Monday chase',act:()=>Docs.runChase(),chans:['Email','WhatsApp','AI voice call','Team alert'],steps:()=>['Clients with pending documents get email, WhatsApp and an AI voice call','The reminder count is updated in the tracker',`After ${N('doc_limit')} reminders your team is asked to call the client`]},
+ {id:'support',name:'AI Client Support',icon:'bot',color:'#0284c7',sched:'Always on — web chat, WhatsApp, voice',on:true,runs:236,last:ago(2),next:null,tab:'support',cta:'Test the assistant',act:()=>Support.openNew(),chans:['Web chat','WhatsApp','Voice'],steps:()=>['One assistant answers on all three channels in Hindi, English or Hinglish','Looks up invoice status live from your register','Voice replies are one or two short sentences; unsure questions go to your team within one working day']},
+];
+function renderAutos(){
+ $('autoGrid').innerHTML=AUTOS.map(a=>`<div class="card auto-card"><div class="ag-top"><div class="ag-ic" style="background:${a.color}1a"><svg data-lucide="${a.icon}" style="color:${a.color}"></svg></div><div><div class="ag-name">${a.name}</div><div class="ag-type">${a.sched}</div></div><div class="toggle ${a.on?'on':''}" onclick="Autos.toggle('${a.id}')"></div></div>
+  <div class="ag-stats"><div class="ag-stat"><div class="v">${a.runs}</div><div class="l">Total runs</div></div><div class="ag-stat"><div class="v">${rel(a.last)}</div><div class="l">Last run</div></div><div class="ag-stat"><div class="v">${a.next?(a.on?fmtDS(a.next()):'Paused'):(a.on?'Live':'Paused')}</div><div class="l">${a.next?'Next run':'Status'}</div></div></div>
+  <ul class="ag-list">${a.steps().map(s=>`<li>${s}</li>`).join('')}</ul><div class="chipline" style="margin:0 0 14px">${a.chans.map(c=>`<span class="chip on">${c}</span>`).join('')}</div>
+  <div class="s-foot" style="margin-top:0"><button class="btn btn-primary btn-sm" onclick="Autos.run('${a.id}')"><svg data-lucide="play"></svg>${a.cta}</button><button class="btn btn-ghost btn-sm" onclick="App.go('${a.tab}')"><svg data-lucide="external-link"></svg>Open</button></div></div>`).join('');
+ const nm=id=>AUTOS.find(a=>a.id===id).name;
+ $('autoLog').innerHTML=RUNLOG.slice().sort((a,b)=>b.at-a.at).slice(0,25).map(r=>`<tr><td>${fmtDS(r.at)} · ${clock(r.at)}<div class="cell-sub">${rel(r.at)}</div></td><td><b>${nm(r.a)}</b></td><td style="white-space:normal">${esc(r.s)} <span class="pill ${r.ok?'p-emerald':'p-rose'}" style="margin-left:6px">${r.ok?'Success':'Failed'}</span></td></tr>`).join('');
+ lucide.createIcons();
+}
+const Autos={toggle(id){const a=AUTOS.find(x=>x.id===id);a.on=!a.on;App.log(a.on?'var(--emerald)':'var(--amber)',`${a.name} ${a.on?'resumed':'paused'}`);renderAutos();App.toast(`${a.name} ${a.on?'resumed':'paused'}`,a.on?'play-circle':'pause-circle');},
+ run(id){const a=AUTOS.find(x=>x.id===id);if(!a.on){App.toast(`${a.name} is paused — resume it first`,'alert-triangle');return;}a.act();}};
+
+/* ===== settings (dynamic keys) ===== */
+const SETS=[
+ {k:'firm',n:'Firm Profile',t:'Appears on every message',i:'building',c:'var(--brand)',always:1,f:[['firm','Firm name'],['firm_email','Firm email'],['firm_phone','Firm phone'],['partner_email','Partner email'],['team_email','Team email']]},
+ {k:'links',n:'Client Links',t:'Used in invoices and reminders',i:'link',c:'var(--sky)',always:1,f:[['pay_link','Payment link'],['upload_link','Document upload link']]},
+ {k:'rules',n:'Rules & Thresholds',t:'Control every automation',i:'sliders-horizontal',c:'var(--violet)',always:1,f:[['approval_threshold','Partner approval above (₹)'],['default_gst','Default GST rate (%)'],['default_due','Default due days'],['cut_gentle','Gentle reminder up to (days)'],['cut_firm','Firm reminder up to (days)'],['cut_final','Final notice up to (days)'],['doc_limit','Document reminders before call']]},
+ {k:'acc',n:'Accounting Software',t:'Invoices sync automatically',i:'book-open-check',c:'var(--blue)',f:[['acc_api','API key','Paste your API key',1],['acc_software','Software',null,0,['Zoho Books','Tally Prime','QuickBooks']]]},
+ {k:'mail',n:'Email Account',t:'Sends invoices and reminders',i:'mail',c:'var(--rose)',f:[['mail_sender','Sender email','you@yourfirm.in'],['mail_token','App password / token','Paste your token',1]]},
+ {k:'wa',n:'WhatsApp Business',t:'Messages and AI replies',i:'message-circle',c:'var(--emerald)',f:[['wa_phone','Phone number ID','e.g. 109876543210987'],['wa_token','Access token','Paste your access token',1]]},
+ {k:'voice',n:'AI Voice Agent',t:'Outbound reminders and inbound calls',i:'phone-call',c:'var(--orange)',f:[['voice_key','API key','Paste your API key',1],['voice_org','Organisation ID','Organisation ID'],['voice_ws','Workspace ID','Workspace ID'],['voice_app','Agent app ID','Agent app ID'],['voice_conn','Connection ID','Connection ID'],['voice_phone','Agent phone number','+91…'],['voice_lang','Call language',null,0,['Hindi','English','Hinglish']]]},
+ {k:'ai',n:'AI Model',t:'Powers the support assistant',i:'sparkles',c:'var(--amber)',f:[['ai_key','API key','sk-••••••••••••',1],['ai_model','Model','e.g. gpt-5-mini']]},
+];
+function renderSettings(){
+ $('setGrid').innerHTML=SETS.map(g=>{const on=g.always||!!Store.get(g.f[0][0]);return `<div class="card auto-card"><div class="ag-top"><div class="ag-ic" style="background:${g.c}1a"><svg data-lucide="${g.i}" style="color:${g.c}"></svg></div><div><div class="ag-name">${g.n}</div><div class="ag-type">${g.t}</div></div><div class="s-status"><span class="s-dot ${on?'':'off'}"></span>${g.always?'Active':on?'Connected':'Not connected'}</div></div>
+  ${g.f.map(f=>f[4]?`<div class="field-row"><label>${f[1]}</label><select id="${f[0]}">${f[4].map(o=>`<option ${S(f[0])===o||(!Store.get(f[0])&&o===(DEF[f[0]]||f[4][0]))?'selected':''}>${o}</option>`).join('')}</select></div>`:`<div class="field-row"><label>${f[1]}</label><input id="${f[0]}" type="${f[3]?'password':'text'}" placeholder="${esc(f[2]||DEF[f[0]]||'')}" value="${esc(Store.get(f[0])||(g.always?DEF[f[0]]:''))}">${f[3]?`<div class="eye" onclick="Sets.eye('${f[0]}')"><svg data-lucide="eye"></svg></div>`:''}</div>`).join('')}
+  <div class="s-foot"><button class="btn btn-primary btn-sm" onclick="Sets.save('${g.k}')"><svg data-lucide="save"></svg>Save</button>${g.always?`<button class="btn btn-ghost btn-sm" onclick="Sets.reset('${g.k}')"><svg data-lucide="rotate-ccw"></svg>Reset</button>`:`<button class="btn btn-ghost btn-sm" onclick="Sets.test('${g.k}')"><svg data-lucide="zap"></svg>Test connection</button>${on?`<button class="btn btn-ghost btn-sm" style="margin-left:auto;color:var(--rose)" onclick="Sets.clear('${g.k}')"><svg data-lucide="trash-2"></svg>Disconnect</button>`:''}`}</div></div>`;}).join('');
+ const kb=customKB();
+ $('kbCard').innerHTML=`<div class="panel-head"><div class="panel-title"><svg data-lucide="book-open"></svg>AI Knowledge Base</div><div class="panel-actions"><button class="btn btn-sm btn-ghost" onclick="App.go('support');Support.openNew()"><svg data-lucide="flask-conical"></svg>Test in Support Desk</button></div></div>
+  <p style="font-size:12.2px;color:var(--text-dim);line-height:1.6;margin-bottom:10px">The assistant already knows GST due dates (GSTR-1 on the 11th, GSTR-3B on the 20th), required documents, your services, pricing from ₹5,000, the payment link and live invoice status. Add your own answers — they take priority.</p>
+  ${kb.map((e,i)=>`<div class="mini-row"><div class="m-main"><div class="m-name">${esc(e.keys)}</div><div class="m-sub" style="white-space:normal">${esc(e.answer)}</div></div><div class="act" onclick="Sets.delKb(${i})" title="Delete"><svg data-lucide="trash-2"></svg></div></div>`).join('')||'<div class="cell-sub" style="margin-bottom:10px">No custom answers yet.</div>'}
+  <div class="form-grid" style="margin-top:12px"><div class="ff"><label>When the question contains (comma separated)</label><input id="kbKeys" placeholder="office hours, timing, open"></div><div class="ff"><label>Answer</label><input id="kbAns" placeholder="We are open Mon–Sat, 10 AM to 6 PM."></div></div><button class="btn btn-primary btn-sm" onclick="Sets.addKb()"><svg data-lucide="plus"></svg>Add answer</button>`;
+ lucide.createIcons();
+}
+const Sets={g(k){return SETS.find(s=>s.k===k);},
+ eye(id){const i=$(id);i.type=i.type==='password'?'text':'password';},
+ save(k){const g=this.g(k);if(k==='rules'){for(const f of g.f){const v=$(f[0]).value.trim();if(v!==''&&!(Number(v)>=0)){App.toast(`${f[1]} must be a number`,'alert-triangle');return;}}const a=Number($('cut_gentle').value),b=Number($('cut_firm').value),c=Number($('cut_final').value);if(!(a<b&&b<c)){App.toast('Stage limits must increase: gentle < firm < final','alert-triangle');return;}}
+  g.f.forEach(f=>Store.set(f[0],$(f[0]).value.trim()));App.brand();renderSettings();App.toast(`${g.n} saved`,'check-circle');},
+ reset(k){const g=this.g(k);g.f.forEach(f=>Store.set(f[0],''));App.brand();renderSettings();App.toast(`${g.n} reset to defaults`,'rotate-ccw');},
+ test(k){const g=this.g(k),v=$(g.f[0][0]).value.trim();if(!v){App.toast(`Enter ${g.f[0][1]} first`,'alert-triangle');return;}App.toast(`Testing ${g.n}…`,'loader');setTimeout(()=>App.toast(`${g.n} connection verified`),900);},
+ clear(k){const g=this.g(k);g.f.forEach(f=>Store.set(f[0],''));renderSettings();App.toast(`${g.n} disconnected`,'unlink');},
+ addKb(){const keys=$('kbKeys').value.trim(),ans=$('kbAns').value.trim();if(!keys||!ans){App.toast('Enter keywords and an answer','alert-triangle');return;}const kb=customKB();kb.push({keys,answer:ans});Store.set('kb_custom',JSON.stringify(kb));renderSettings();App.toast('Answer added to the knowledge base','book-open');},
+ delKb(i){const kb=customKB();kb.splice(i,1);Store.set('kb_custom',JSON.stringify(kb));renderSettings();App.toast('Answer removed','trash-2');}
+};
+
+/* ===== init ===== */
+const RENDER={dashboard:renderDashboard,clients:()=>Clients.render(),invoices:()=>Invoices.render(),recovery:renderRecovery,gst:renderGst,documents:renderDocs,support:()=>Support.render(),outreach:()=>Outreach.render(),tasks:()=>Tasks.render(),automations:renderAutos,settings:renderSettings};
+seedAll();App.brand();Notifs.badge();App.go('dashboard');
+</script>
+</body>
+</html>
